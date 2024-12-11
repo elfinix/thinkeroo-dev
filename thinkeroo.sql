@@ -23,6 +23,9 @@ ALTER TABLE user
     
 ALTER TABLE user
     ADD COLUMN is_staff BOOLEAN NOT NULL DEFAULT FALSE;
+    
+ALTER TABLE user
+	MODIFY password VARCHAR(255) NOT NULL;
 
 -- Class Table
 CREATE TABLE class (

@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
 # Create a custom User Manager
-class CustomUserManager(BaseUserManager):
+class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
         if not email:
             raise ValueError('The Email field must be set')
@@ -36,7 +36,7 @@ class User(AbstractBaseUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    objects = CustomUserManager()
+    objects = UserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']  # Fields required for creating a superuser

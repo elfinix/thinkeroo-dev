@@ -30,13 +30,11 @@ ALLOWED_HOSTS = []
 
 #!! Custom settings
 # Set the custom User model
-AUTH_USER_MODEL = 'users.User'  # Refers to the CustomUser model in the 'users' app
-
+AUTH_USER_MODEL = 'users.User'  # Refers to the User model in the 'users' app
 
 # Media handling
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 # Application definition
 
