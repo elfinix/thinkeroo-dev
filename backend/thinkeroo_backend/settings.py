@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 
 #!! Custom settings
 # Set the custom User model
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.User'  # Refers to the CustomUser model in the 'users' app
 
 
 # Media handling

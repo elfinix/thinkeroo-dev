@@ -1,55 +1,49 @@
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
-# Create a custom manager for the User model
+# Create a custom User Manager
 class CustomUserManager(BaseUserManager):
-    def create_user(self, username, email, password=None):
+    def create_user(self, username, email, password=None, **extra_fields):
         if not email:
-            raise ValueError('Users must have an email address')
-        user = self.model(username=username, email=email)
-        user.set_password(password)  # Encrypt password
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, password=None):
-        user = self.create_user(username, email, password)
-        user.is_admin = True
-        user.save(using=self._db)
-        return user
+    def create_superuser(self, username, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(username, email, password, **extra_fields)
 
 
-# Define the custom User model
+# Custom User Model inheriting from AbstractBaseUser
 class User(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
-    email = models.EmailField(max_length=100, unique=True)
+    email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     institution = models.CharField(max_length=100)
-    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     role = models.CharField(max_length=10, choices=[('teacher', 'Teacher'), ('student', 'Student')], default='student')
-
+    
+    # For Django authentication
     is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
-
-    # Timestamp fields
+    is_staff = models.BooleanField(default=False)
+    
+    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Set the manager for the user model
     objects = CustomUserManager()
 
-    USERNAME_FIELD = 'email'  # This makes email the unique identifier
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']  # Fields required for creating a superuser
 
     def __str__(self):
-        return self.email
+        return self.username
 
-    def has_perm(self, perm, obj=None):
-        return self.is_admin  # Admins have all permissions
-
-    def has_module_perms(self, app_label):
-        return True  # Users have access to all modules
-    
     class Meta:
-        db_table = 'users_user'  # Specify the existing table name
+        db_table = 'user'  # Specify the existing table
+        managed = False    # Prevent Django from managing the table
