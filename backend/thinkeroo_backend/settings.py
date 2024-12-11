@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',  # if using social auth like Google or Facebook
 
     'users',
+    'classes',
 ]
 
 MIDDLEWARE = [
