@@ -1,38 +1,33 @@
-import React, { useState } from 'react'
-import TeacherClassHeader from './TeacherClassHeader'
-import TeacherClassList from './TeacherClassList'
-import TeacherCreateClass from './TeacherCreateClass'
-import ClassOverview from './TeacherClassOverview'
+import React, { useState } from "react";
+import TeacherClassHeader from "./TeacherClassHeader";
+import TeacherClassList from "./TeacherClassList";
+import TeacherCreateClass from "./TeacherCreateClass";
+import TeacherClassOverview from "./TeacherClassOverview";
 
 const TeacherClass = () => {
     const [showCreateClass, setShowCreateClass] = useState(false);
-    const [selectedClass, setSelectedClass] = useState();
+    const [selectedClass, setSelectedClass] = useState(null);
     const [showOverview, setShowOverview] = useState(false);
-    
+
     return (
         <div className="w-full h-full flex flex-col items-center">
-            {!showOverview &&
+            {!showOverview && (
                 <>
-                    <TeacherClassHeader 
-                    setShowCreateClass={setShowCreateClass}
-                    />
-                    <TeacherClassList 
-                        setSelectedClass={setSelectedClass}
-                        setShowOverview={setShowOverview}
-                    />
+                    <TeacherClassHeader setShowCreateClass={setShowCreateClass} />
+                    <TeacherClassList setSelectedClass={setSelectedClass} setShowOverview={setShowOverview} />
                 </>
-            }
-            {showOverview &&
-                <ClassOverview/>
-            }
+            )}
+            {showOverview && <TeacherClassOverview selectedClass={selectedClass} />}
 
-            {showCreateClass && 
-                <TeacherCreateClass 
+            {showCreateClass && (
+                <TeacherCreateClass
                     setShowCreateClass={setShowCreateClass}
+                    setShowOverview={setShowOverview}
+                    setSelectedClass={setSelectedClass}
                 />
-            }
+            )}
         </div>
-    )
-}
+    );
+};
 
-export default TeacherClass
+export default TeacherClass;

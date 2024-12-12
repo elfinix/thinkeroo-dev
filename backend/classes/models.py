@@ -9,6 +9,7 @@ class Class(models.Model):
     archived_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    banner_img = models.ImageField(upload_to='class_banners/', null=True, blank=True)  # New field
 
     def __str__(self):
         return self.name
