@@ -51,6 +51,12 @@ INSTALLED_APPS = [
 
     'users',
     'classes',
+    'user_class',
+    'class_posts',
+    'quizzes',
+    'questions',
+    'options',
+    
 ]
 
 MIDDLEWARE = [

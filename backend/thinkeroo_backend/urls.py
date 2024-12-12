@@ -23,6 +23,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')), 
     path('api/classes/', include('classes.urls')),
+    path('api/user-class/', include('user_class.urls')),
+    path('api/class-posts/', include('class_posts.urls')),
+    path('api/quizzes/', include('quizzes.urls')),
+    path('api/questions/', include('questions.urls')),
+    path('api/options/', include('options.urls'))
 ]
 
 if settings.DEBUG:
