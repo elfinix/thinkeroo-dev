@@ -1,0 +1,8 @@
+body {
+    background-color: var(--primary-1);
+    font-family: "Lexend", sans-serif;
+}
+
+.teacher_sidebar {
+    transition: width 0.25s ease-out;
+}

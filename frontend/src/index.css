@@ -1,0 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --primary-1: #1E1E2C;
+    --primary-2: #181818;
+    --primary-3: #363657;
+    --secondary-1: #8A2EDF;
+    --secondary-2: #6C2AAA;
+    --accent-1: #FD7E55;
+    --accent-2: #D9633D;
+    --text-1: #F5F5F5;
+    --text-2: #7C7C90;
+    --positive: #3CB24A;
+    --negative: #F93F3F;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator{
+    filter: invert(100%);
+}
