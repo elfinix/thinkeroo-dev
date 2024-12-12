@@ -4,6 +4,8 @@ import backgroundImage from "../assets/SingUpBg.png";
 import { FaArrowLeft, FaEyeSlash, FaEye } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
+import { API_ENDPOINT } from "../../constants/constants";
+
 const SignUpPage = () => {
     const [isChecked, setIsChecked] = useState(false);
     const [error, setError] = useState("");
@@ -43,7 +45,7 @@ const SignUpPage = () => {
         } else {
             setError("");
             try {
-                const response = await axios.post("http://127.0.0.1:8000/api/users/register/", formData);
+                const response = await axios.post(`${API_ENDPOINT}/api/users/register/`, formData);
                 if (response.status === 201) {
                     alert("Registration successful!");
                     navigate("/auth");

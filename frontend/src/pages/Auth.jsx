@@ -4,6 +4,8 @@ import backgroundImage from "../assets/SingUpBg.png";
 import { FaArrowLeft, FaEyeSlash, FaEye } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
+import { API_ENDPOINT } from "../../constants/constants";
+
 const Auth = () => {
     const [isChecked, setIsChecked] = useState(false);
     const [isPasswordVisible, setPasswordVisible] = useState(false);
@@ -34,7 +36,7 @@ const Auth = () => {
         e.preventDefault();
         setError("");
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/users/login/", formData);
+            const response = await axios.post(`${API_ENDPOINT}/api/users/login/`, formData);
             console.log("API Response:", response); // Debugging: Log the API response
             if (response.status === 200) {
                 const { token, role } = response.data;

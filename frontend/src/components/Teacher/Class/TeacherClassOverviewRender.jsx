@@ -17,7 +17,7 @@ const TeacherClassOverviewRender = ({ render, viewScore, setShowEditDetails, cla
             );
             break;
         case "Quiz":
-            content = <TeacherClassQuiz viewScore={viewScore} />;
+            content = <TeacherClassQuiz viewScore={viewScore} classId={classDetails.id} />;
             break;
         case "Student":
             content = <TeacherClassOverviewStudentList />;

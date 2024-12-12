@@ -1,5 +1,6 @@
 import React from "react";
 import TeacherClassOverviewPostList from "./TeacherClassOverviewPostList";
+import { API_ENDPOINT } from "/constants/constants";
 
 const TeacherClassOverviewBody = ({ classDetails }) => {
     console.log(classDetails.banner_img);
@@ -9,7 +10,7 @@ const TeacherClassOverviewBody = ({ classDetails }) => {
             <div className="w-full h-[323px] overflow-hidden rounded-[10px] relative">
                 <img
                     className="w-full h-full object-cover object-center"
-                    src={`http://127.0.0.1:8000/${classDetails.banner_img}` || "https://placehold.co/200x80"}
+                    src={`${API_ENDPOINT}/${classDetails.banner_img}` || "https://placehold.co/200x80"}
                     alt={classDetails.name}
                 />
                 <div

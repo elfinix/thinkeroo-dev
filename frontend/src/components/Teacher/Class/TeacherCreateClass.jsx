@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_ENDPOINT } from "/constants/constants";
 
 const TeacherCreateClass = ({ setShowCreateClass, setShowOverview, setSelectedClass }) => {
     const [className, setClassName] = useState("");
@@ -20,7 +21,7 @@ const TeacherCreateClass = ({ setShowCreateClass, setShowOverview, setSelectedCl
         }
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/classes/create/", formData, {
+            const response = await axios.post(`${API_ENDPOINT}/api/classes/create/`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

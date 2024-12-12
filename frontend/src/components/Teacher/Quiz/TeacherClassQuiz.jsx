@@ -1,14 +1,32 @@
-import React from 'react'
-import TeacherClassQuizCard from './TeacherClassQuizCard'
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import TeacherClassQuizCard from "./TeacherClassQuizCard";
 
-const TeacherClassQuiz = ({ viewScore }) => {
+import { API_ENDPOINT } from "/constants/constants";
+
+const TeacherClassQuiz = ({ viewScore, classId }) => {
+    const [quizzes, setQuizzes] = useState([]);
+
+    useEffect(() => {
+        const fetchQuizzes = async () => {
+            try {
+                const response = await axios.get(`${API_ENDPOINT}/api/quizzes/class/${classId}/`);
+                setQuizzes(response.data);
+            } catch (error) {
+                console.error("Failed to fetch quizzes:", error);
+            }
+        };
+
+        fetchQuizzes();
+    }, [classId]);
+
     return (
         <div className="w-full h-5/6 flex flex-wrap gap-12 overflow-y-auto">
-            <TeacherClassQuizCard 
-                viewScore={viewScore}
-            />
+            {quizzes.map((quiz) => (
+                <TeacherClassQuizCard key={quiz.id} quiz={quiz} viewScore={viewScore} />
+            ))}
         </div>
-    )
-}
+    );
+};
 
-export default TeacherClassQuiz
+export default TeacherClassQuiz;

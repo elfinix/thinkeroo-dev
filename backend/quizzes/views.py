@@ -2,8 +2,10 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Quiz
-from .serializers import QuizSerializer
+from quizzes.models import Quiz
+from questions.models import Question
+from quizzes.serializers import QuizSerializer
+from questions.serializers import QuestionSerializer
 
 @api_view(['GET', 'POST'])
 def quiz_list(request):
@@ -44,3 +46,17 @@ def quiz_detail(request, pk):
         quiz.deleted_at = timezone.now()
         quiz.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def quizzes_by_class(request, class_id):
+    """Retrieve quizzes by class."""
+    quizzes = Quiz.objects.filter(class_instance=class_id)
+    serializer = QuizSerializer(quizzes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def questions_by_quiz(request, quiz_id):
+    """Retrieve questions by quiz."""
+    questions = Question.objects.filter (quiz_instance=quiz_id)
+    serializer = QuestionSerializer(questions, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

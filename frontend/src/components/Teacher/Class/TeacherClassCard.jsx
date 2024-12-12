@@ -1,4 +1,5 @@
 import React from "react";
+import { API_ENDPOINT } from "/constants/constants";
 
 const TeacherClassCard = ({ classItem, setSelectedClass, setShowOverview }) => {
     // console.log(classItem);
@@ -15,11 +16,7 @@ const TeacherClassCard = ({ classItem, setSelectedClass, setShowOverview }) => {
             <div className="teacher_class_card_image w-full h-[150px]">
                 <img
                     className="w-full h-full object-center object-cover select-none pointer-events-none"
-                    src={
-                        classItem.banner_img
-                            ? `http://127.0.0.1:8000/${classItem.banner_img}`
-                            : "https://placehold.co/200x80"
-                    }
+                    src={classItem.banner_img ? `${API_ENDPOINT}/${classItem.banner_img}` : "https://placehold.co/200x80"}
                     alt={classItem.name}
                 />
             </div>

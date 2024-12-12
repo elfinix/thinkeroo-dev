@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import TeacherClassCard from "./TeacherClassCard";
+import { API_ENDPOINT } from "/constants/constants";
 
 const TeacherClassList = ({ setSelectedClass, setShowOverview }) => {
     const [classes, setClasses] = useState([]);
@@ -8,7 +9,7 @@ const TeacherClassList = ({ setSelectedClass, setShowOverview }) => {
     useEffect(() => {
         const fetchClasses = async () => {
             try {
-                const response = await axios.get("http://127.0.0.1:8000/api/classes/");
+                const response = await axios.get(`${API_ENDPOINT}/api/classes/`);
                 setClasses(response.data);
             } catch (error) {
                 console.error("Failed to fetch classes:", error);

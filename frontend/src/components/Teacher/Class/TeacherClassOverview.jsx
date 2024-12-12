@@ -5,6 +5,7 @@ import TeacherClassOverviewHeader from "./TeacherClassOverviewHeader";
 import TeacherClassOverviewRender from "./TeacherClassOverviewRender";
 import TeacherClassQuizScores from "../Quiz/TeacherClassQuizScores";
 import TeacherClassOverviewDetailsEdit from "./TeacherClassOverviewDetailsEdit";
+import { API_ENDPOINT } from "/constants/constants";
 
 const TeacherClassOverview = ({ selectedClass }) => {
     const [render, setRender] = useState("Overview");
@@ -16,7 +17,7 @@ const TeacherClassOverview = ({ selectedClass }) => {
     useEffect(() => {
         const fetchClassDetails = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/api/classes/${selectedClass.id}/`);
+                const response = await axios.get(`${API_ENDPOINT}/api/classes/${selectedClass.id}/`);
                 setClassDetails(response.data);
             } catch (error) {
                 console.error("Failed to fetch class details:", error);
