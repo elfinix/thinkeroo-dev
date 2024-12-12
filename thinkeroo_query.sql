@@ -1,3 +1,5 @@
+USE thinkeroo
+
 -- search for the class of a teacher (join: user, class, user_class)
 SELECT 
     u.id AS user_id,
@@ -17,17 +19,17 @@ WHERE
 -- display all the questions made by user 1
 SELECT 
     q.id AS question_id,
-    q.title AS question_title,
     q.content AS question_content,
     q.created_at AS question_created_at,
     u.id AS user_id,
     CONCAT(u.first_name, ' ', u.last_name) AS full_name,
     u.username AS user_name
 FROM 
-    questions q
+    question q
 JOIN 
-    user u ON q.user_id = u.id
+    user u ON q.id = u.id
 WHERE 
     u.id = 1;
     
+DROP TABLE authtoken_token;
     

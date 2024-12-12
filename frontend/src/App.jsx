@@ -1,28 +1,55 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-import "./App.css";
-
-import Auth from "./pages/Auth";
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
+import Auth from "./pages/Auth";
+import SignUpPage from "./pages/SignUpPage";
 import Student from "./pages/Student";
 import Teacher from "./pages/Teacher";
-import SignUpPage from "./pages/SignUpPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import RoleBasedRedirect from "./components/RoleBasedRedirect";
+import PublicRoute from "./components/PublicRoute";
 
-function App() {
+const App = () => {
     return (
         <Router>
-            <div>
-                <Routes>
-                    <Route path="/" element={<LandingPage />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/main" element={<LandingPage />} />
-                    <Route path="/student" element={<Student />} />
-                    <Route path="/teacher" element={<Teacher />} />
-                    <Route path="/signup" element={<SignUpPage />} />
-                </Routes>
-            </div>
+            <Routes>
+                <Route path="/" element={<RoleBasedRedirect />} />
+                <Route
+                    path="/auth"
+                    element={
+                        <PublicRoute>
+                            <Auth />
+                        </PublicRoute>
+                    }
+                />
+                <Route
+                    path="/main"
+                    element={
+                        <PublicRoute>
+                            <LandingPage />
+                        </PublicRoute>
+                    }
+                />
+                <Route
+                    path="/student"
+                    element={
+                        <ProtectedRoute role="student">
+                            <Student />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/teacher/*"
+                    element={
+                        <ProtectedRoute role="teacher">
+                            <Teacher />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route path="/signup" element={<SignUpPage />} />
+            </Routes>
         </Router>
     );
-}
+};
 
 export default App;

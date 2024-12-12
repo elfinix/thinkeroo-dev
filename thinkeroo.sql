@@ -39,6 +39,9 @@ CREATE TABLE class (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE class
+    ADD COLUMN banner_img VARCHAR(100) NOT NULL;
+
 -- User-Class Join Table
 CREATE TABLE user_class (
     id INT PRIMARY KEY AUTO_INCREMENT,

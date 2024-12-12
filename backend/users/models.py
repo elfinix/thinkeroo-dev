@@ -16,6 +16,19 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(username, email, password, **extra_fields)
+        
+    def authenticate(self, identifier, password):
+        """Authenticate a user by username or email."""
+        try:
+            user = self.get(username=identifier)
+        except self.model.DoesNotExist:
+            try:
+                user = self.get(email=identifier)
+            except self.model.DoesNotExist:
+                return None
+        if user.check_password(password):
+            return user
+        return None
 
 
 # Custom User Model inheriting from AbstractBaseUser
