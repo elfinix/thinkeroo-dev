@@ -51,11 +51,17 @@ INSTALLED_APPS = [
 
     'users',
     'classes',
+    
     'user_class',
     'class_posts',
+    
     'quizzes',
     'questions',
     'options',
+    
+    'quiz_questions',
+    'responses',
+    'student_scores',
     
 ]
 
