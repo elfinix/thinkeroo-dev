@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import TeacherClassStudentListItem from "./TeacherClassStudentListItem";
 import TeacherClassInviteStudent from "./TeacherClassInviteStudent";
+import { API_ENDPOINT } from "/constants/constants";
 
-const TeacherClassOverviewStudentList = ({ studentList }) => {
+const TeacherClassOverviewStudentList = ({ studentList, classId }) => {
     const [invite, setInvite] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null); // State to track the selected student
     const [searchQuery, setSearchQuery] = useState(""); // State to track the search query
@@ -11,6 +13,24 @@ const TeacherClassOverviewStudentList = ({ studentList }) => {
     const filteredStudentList = studentList.filter((student) =>
         `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const [totalStudents, setTotalStudents] = useState(0);
+
+    useEffect(() => {
+        console.log("classId:", classId); // Log the classId to debug
+        if (classId) {
+            const fetchTotalStudents = async () => {
+                try {
+                    const response = await axios.get(`${API_ENDPOINT}/api/user-class/total_students/${classId}/`);
+                    setTotalStudents(response.data.total_students);
+                } catch (error) {
+                    console.error("Failed to fetch total students:", error);
+                }
+            };
+
+            fetchTotalStudents();
+        }
+    }, [classId]);
 
     return (
         <>
@@ -23,21 +43,23 @@ const TeacherClassOverviewStudentList = ({ studentList }) => {
                         onChange={(e) => setSearchQuery(e.target.value)} // Update search query state on change
                         className="w-[502px] text-text-1 focus:outline-text-1 placeholder:text-text-2 placeholder:font-medium h-[42px] px-4 rounded-[10px] border-2 border-primary-3 bg-transparent"
                     />
-                    {/* <button
+                    <button
                         onClick={() => setInvite(true)}
                         className="w-[163px] h-[42px] flex items-center justify-center text-primary-1 font-medium text-[16px] bg-accent-1 rounded-[50px] gap-2"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 14 14">
                             <path className="fill-primary-1" d="M6 6V0h2v6h6v2H8v6H6V8H0V6h6Z" />
                         </svg>
-                        Invite
-                    </button> */}
+                        Create Class
+                    </button>
                 </div>
                 <div className="w-full h-[90%] flex gap-4">
                     <div className="w-full h-full border-2 border-primary-3 rounded-[10px] p-5">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-medium text-text-1">Student List</h2>
-                            <h2 className="text-xl font-medium text-text-2">{filteredStudentList.length}/30</h2>
+                            <h2 className="text-xl font-medium text-text-2">
+                                {filteredStudentList.length}/{totalStudents}
+                            </h2>
                         </div>
                         <div className="w-full h-[92%] overflow-y-auto">
                             {filteredStudentList.map((student) => (

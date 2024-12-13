@@ -50,3 +50,9 @@ FROM
     user u
 JOIN
     user_class uc ON u.id = uc.user_id
+    
+-- ver. 2
+SELECT COUNT(uc.user_id) AS total_students
+FROM user_class uc
+JOIN quiz z ON uc.class_id = z.class_id
+WHERE uc.id = 1

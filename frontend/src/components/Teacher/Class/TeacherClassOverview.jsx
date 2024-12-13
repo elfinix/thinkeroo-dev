@@ -14,6 +14,7 @@ const TeacherClassOverview = ({ selectedClass }) => {
     const [showEditDetails, setShowEditDetails] = useState(false);
     const [classDetails, setClassDetails] = useState(null);
     const [studentList, setStudentList] = useState([]);
+    const [totalStudents, setTotalStudents] = useState(0); // State to track the total number of students
 
     useEffect(() => {
         const fetchClassDetails = async () => {
@@ -29,14 +30,23 @@ const TeacherClassOverview = ({ selectedClass }) => {
             try {
                 const response = await axios.get(`${API_ENDPOINT}/api/user-class/students/${selectedClass.id}/`);
                 setStudentList(response.data);
-                console.log("Fetched student list:", response.data);
             } catch (error) {
                 console.error("Failed to fetch student list:", error);
             }
         };
 
+        const fetchTotalStudents = async () => {
+            try {
+                const response = await axios.get(`${API_ENDPOINT}/api/user-class/total_students/${selectedClass.id}/`);
+                setTotalStudents(response.data.total_students);
+            } catch (error) {
+                console.error("Failed to fetch total students:", error);
+            }
+        };
+
         fetchClassDetails();
         fetchStudentList();
+        fetchTotalStudents();
     }, [selectedClass]);
 
     const viewScore = (quiz) => {
@@ -55,6 +65,7 @@ const TeacherClassOverview = ({ selectedClass }) => {
                         setShowEditDetails={setShowEditDetails}
                         classDetails={classDetails}
                         studentList={studentList} // Pass student list to the render component
+                        totalStudents={totalStudents} // Pass total students to the render component
                     />
                 </>
             )}

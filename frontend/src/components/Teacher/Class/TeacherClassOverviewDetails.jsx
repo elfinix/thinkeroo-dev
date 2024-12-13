@@ -1,6 +1,6 @@
 import React from "react";
 
-const TeacherClassOverviewDetails = ({ setShowEditDetails, classDetails }) => {
+const TeacherClassOverviewDetails = ({ setShowEditDetails, classDetails, totalStudents }) => {
     const handleCopy = () => {
         const textToCopy = document.getElementById("copy-text").textContent;
         navigator.clipboard
@@ -43,7 +43,7 @@ const TeacherClassOverviewDetails = ({ setShowEditDetails, classDetails }) => {
             <p className="text-text-2">Class Limit</p>
             <p className="text-xl text-text-1 mb-3">{classDetails.class_limit}</p>
             <p className="text-text-2">Student Count</p>
-            <p className="text-xl text-text-1 mb-3">100 - EDIT ME</p>
+            <p className="text-xl text-text-1 mb-3">{totalStudents}</p>
             <p className="text-text-2">Created</p>
             <p className="text-xl text-text-1 mb-3">{new Date(classDetails.created_at).toLocaleDateString()}</p>
         </div>

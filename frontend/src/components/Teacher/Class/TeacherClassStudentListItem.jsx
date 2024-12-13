@@ -1,7 +1,6 @@
 import React from "react";
 
 const TeacherClassStudentListItem = ({ student, onClick }) => {
-    console.log("Student object ", student);
     return (
         <div
             className="student-list-item cursor-pointer w-full h-[69px] border-b-2 border-0 border-primary-3 flex items-center justify-between"
