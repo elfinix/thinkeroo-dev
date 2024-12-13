@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import TeacherClassStudentListItem from "./TeacherClassStudentListItem";
 import TeacherClassInviteStudent from "./TeacherClassInviteStudent";
 import { API_ENDPOINT } from "/constants/constants";
 import { getClassSelector } from "/src/global/globals";
 
-const TeacherClassOverviewStudentList = ({ studentList, setStudentList }) => {
+const TeacherClassOverviewStudentList = ({ studentList, setStudentList, totalStudents }) => {
     const [invite, setInvite] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null); // State to track the selected student
     const [searchQuery, setSearchQuery] = useState(""); // State to track the search query
@@ -15,24 +15,7 @@ const TeacherClassOverviewStudentList = ({ studentList, setStudentList }) => {
         `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const [totalStudents, setTotalStudents] = useState(0);
     const classId = getClassSelector();
-
-    useEffect(() => {
-        console.log("classId:", classId); // Log the classId to debug
-        if (classId) {
-            const fetchTotalStudents = async () => {
-                try {
-                    const response = await axios.get(`${API_ENDPOINT}/api/classes/${classId}/`);
-                    setTotalStudents(response.data.class_limit);
-                } catch (error) {
-                    console.error("Failed to fetch total students:", error);
-                }
-            };
-
-            fetchTotalStudents();
-        }
-    }, [classId]);
 
     const handleDeleteStudent = async (studentId) => {
         try {
@@ -55,15 +38,6 @@ const TeacherClassOverviewStudentList = ({ studentList, setStudentList }) => {
                         className="w-[502px] text-text-1 focus:outline-text-1 placeholder:text-text-2 placeholder:font-medium h-[42px] px-4 rounded-[10px] border-2 border-primary-3 bg-transparent"
                     />
                 </div>
-                {/* <button
-                        onClick={() => setInvite(true)}
-                        className="w-[163px] h-[42px] flex items-center justify-center text-primary-1 font-medium text-[16px] bg-accent-1 rounded-[50px] gap-2"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 14 14">
-                            <path className="fill-primary-1" d="M6 6V0h2v6h6v2H8v6H6V8H0V6h6Z" />
-                        </svg>
-                        Create Class
-                    </button> */}
                 <div className="w-full h-[90%] flex gap-4">
                     <div className="w-full h-full border-2 border-primary-3 rounded-[10px] p-5">
                         <div className="flex justify-between items-center mb-4">
