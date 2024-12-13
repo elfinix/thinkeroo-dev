@@ -1,5 +1,5 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Class
@@ -32,12 +32,18 @@ def get_class(request, pk):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
+@parser_classes([MultiPartParser, FormParser])
 def update_class(request, pk):
     """Update a class."""
     try:
         class_instance = Class.objects.get(pk=pk)
     except Class.DoesNotExist:
         return Response({"error": "Class not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    # Handle file upload for class image
+    if 'class_image' in request.FILES:
+        class_instance.class_image = request.FILES['class_image']
+    
     serializer = ClassSerializer(class_instance, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()

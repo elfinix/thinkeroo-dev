@@ -3,8 +3,6 @@ import TeacherClassOverviewPostList from "./TeacherClassOverviewPostList";
 import { API_ENDPOINT } from "/constants/constants";
 
 const TeacherClassOverviewBody = ({ classDetails }) => {
-    console.log(classDetails.banner_img);
-
     return (
         <div className="w-full h-[88%]">
             <div className="w-full h-[323px] overflow-hidden rounded-[10px] relative">

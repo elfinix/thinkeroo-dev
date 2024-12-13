@@ -70,7 +70,14 @@ const TeacherClassOverview = ({ selectedClass }) => {
                 </>
             )}
             {showQuizScore && <TeacherClassQuizScores setShowQuizScore={setShowQuizScore} selectedQuiz={selectedQuiz} />}
-            {showEditDetails && <TeacherClassOverviewDetailsEdit setShowEditDetails={setShowEditDetails} />}
+            {showEditDetails && (
+                <TeacherClassOverviewDetailsEdit
+                    setShowEditDetails={setShowEditDetails}
+                    classDetails={classDetails}
+                    setClassDetails={setClassDetails}
+                    totalStudents={totalStudents} // Pass total students to the edit component
+                />
+            )}
         </div>
     );
 };

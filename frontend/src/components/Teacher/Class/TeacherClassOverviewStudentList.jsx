@@ -3,8 +3,9 @@ import axios from "axios";
 import TeacherClassStudentListItem from "./TeacherClassStudentListItem";
 import TeacherClassInviteStudent from "./TeacherClassInviteStudent";
 import { API_ENDPOINT } from "/constants/constants";
+import { getClassSelector } from "/src/global/globals";
 
-const TeacherClassOverviewStudentList = ({ studentList, classId }) => {
+const TeacherClassOverviewStudentList = ({ studentList }) => {
     const [invite, setInvite] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null); // State to track the selected student
     const [searchQuery, setSearchQuery] = useState(""); // State to track the search query
@@ -15,14 +16,15 @@ const TeacherClassOverviewStudentList = ({ studentList, classId }) => {
     );
 
     const [totalStudents, setTotalStudents] = useState(0);
+    const classId = getClassSelector();
 
     useEffect(() => {
         console.log("classId:", classId); // Log the classId to debug
         if (classId) {
             const fetchTotalStudents = async () => {
                 try {
-                    const response = await axios.get(`${API_ENDPOINT}/api/user-class/total_students/${classId}/`);
-                    setTotalStudents(response.data.total_students);
+                    const response = await axios.get(`${API_ENDPOINT}/api/classes/${classId}/`);
+                    setTotalStudents(response.data.class_limit);
                 } catch (error) {
                     console.error("Failed to fetch total students:", error);
                 }

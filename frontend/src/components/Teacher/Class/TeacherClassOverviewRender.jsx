@@ -4,8 +4,6 @@ import TeacherClassOverviewBody from "./TeacherClassOverviewBody";
 import TeacherClassQuiz from "../Quiz/TeacherClassQuiz";
 import TeacherClassOverviewStudentList from "./TeacherClassOverviewStudentList";
 
-import { getClassSelector } from "/src/global/globals";
-
 const TeacherClassOverviewRender = ({ render, viewScore, setShowEditDetails, classDetails, studentList, totalStudents }) => {
     let content;
 
@@ -26,8 +24,7 @@ const TeacherClassOverviewRender = ({ render, viewScore, setShowEditDetails, cla
             content = <TeacherClassQuiz viewScore={viewScore} classId={classDetails.id} />;
             break;
         case "Student":
-            const classId = getClassSelector();
-            content = <TeacherClassOverviewStudentList studentList={studentList} classId={classId} />;
+            content = <TeacherClassOverviewStudentList studentList={studentList} />;
             break;
         default:
             content = (
