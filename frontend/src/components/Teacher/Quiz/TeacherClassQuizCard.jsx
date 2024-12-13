@@ -24,10 +24,7 @@ const TeacherClassQuizCard = ({ quiz, viewScore }) => {
             <h2 className="w-3/5 text-ellipsis whitespace-nowrap overflow-hidden text-text-1 font-bold text-[20px]">
                 {quiz.title}
             </h2>
-            <p
-                onClick={() => viewScore("Data Goes Here")}
-                className="absolute top-0 right-0 m-4 underline text-text-1 cursor-pointer"
-            >
+            <p onClick={() => viewScore(quiz)} className="absolute top-0 right-0 m-4 underline text-text-1 cursor-pointer">
                 View Grades
             </p>
 
@@ -39,7 +36,7 @@ const TeacherClassQuizCard = ({ quiz, viewScore }) => {
                             d="m14.618 4.968 1.453-1.453 1.414 1.414-1.453 1.453A9 9 0 1 1 9 3c2.125 0 4.078.736 5.618 1.968ZM9 19A7 7 0 1 0 9 5a7 7 0 0 0 0 14ZM8 7h2v6H8V7ZM5 0h8v2H5V0Z"
                         />
                     </svg>
-                    <p className="text-text-2">{quiz.duration}</p>
+                    <p className="text-text-2">{quiz.duration} mins.</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" viewBox="0 0 20 20">

@@ -27,9 +27,9 @@ const TeacherClassOverview = ({ selectedClass }) => {
         fetchClassDetails();
     }, [selectedClass]);
 
-    const viewScore = (data) => {
+    const viewScore = (quiz) => {
         setShowQuizScore(true);
-        setSelectedQuiz(data);
+        setSelectedQuiz(quiz);
     };
 
     return (

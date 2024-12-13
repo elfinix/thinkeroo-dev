@@ -42,3 +42,21 @@ def student_score_detail(request, pk):
     if request.method == 'DELETE':
         score.delete()
         return DRFResponse(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def student_scores_by_quiz(request, quiz_id):
+    """Retrieve student scores by quiz."""
+    scores = StudentScore.objects.filter(quiz_instance=quiz_id).select_related('student_instance')
+    data = [
+        {
+            'student_id': score.student_instance.id,
+            'first_name': score.student_instance.first_name,
+            'last_name': score.student_instance.last_name,
+            'student_name': (score.student_instance.first_name + ' ' + score.student_instance.last_name),
+            'score': score.total_score,
+            'time_started': score.time_started,
+            'time_taken': (score.time_finished - score.time_started).total_seconds() / 60
+        }
+        for score in scores
+    ]
+    return DRFResponse(data, status=status.HTTP_200_OK)

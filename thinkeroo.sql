@@ -149,3 +149,6 @@ CREATE TABLE student_score (
     CONSTRAINT fk_student_score_student FOREIGN KEY (student_id) REFERENCES user(id),
     CONSTRAINT fk_student_score_quiz FOREIGN KEY (quiz_id) REFERENCES quiz(id)
 );
+
+ALTER TABLE student_score
+ADD COLUMN time_finished TIMESTAMP DEFAULT CURRENT_TIMESTAMP
