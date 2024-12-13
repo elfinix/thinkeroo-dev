@@ -29,7 +29,7 @@ const TeacherClassOverview = ({ selectedClass }) => {
             try {
                 const response = await axios.get(`${API_ENDPOINT}/api/user-class/students/${selectedClass.id}/`);
                 setStudentList(response.data);
-                console.log("Fetched student list:", response.data); // Add this line to check the fetched data
+                console.log("Fetched student list:", response.data);
             } catch (error) {
                 console.error("Failed to fetch student list:", error);
             }

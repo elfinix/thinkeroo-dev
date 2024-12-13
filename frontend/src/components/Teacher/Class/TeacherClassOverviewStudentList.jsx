@@ -4,6 +4,13 @@ import TeacherClassInviteStudent from "./TeacherClassInviteStudent";
 
 const TeacherClassOverviewStudentList = ({ studentList }) => {
     const [invite, setInvite] = useState(false);
+    const [selectedStudent, setSelectedStudent] = useState(null); // State to track the selected student
+    const [searchQuery, setSearchQuery] = useState(""); // State to track the search query
+
+    // Filter the student list based on the search query
+    const filteredStudentList = studentList.filter((student) =>
+        `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <>
@@ -12,52 +19,74 @@ const TeacherClassOverviewStudentList = ({ studentList }) => {
                     <input
                         type="text"
                         placeholder="Search Student"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)} // Update search query state on change
                         className="w-[502px] text-text-1 focus:outline-text-1 placeholder:text-text-2 placeholder:font-medium h-[42px] px-4 rounded-[10px] border-2 border-primary-3 bg-transparent"
                     />
-                    <button
+                    {/* <button
                         onClick={() => setInvite(true)}
                         className="w-[163px] h-[42px] flex items-center justify-center text-primary-1 font-medium text-[16px] bg-accent-1 rounded-[50px] gap-2"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 14 14">
                             <path className="fill-primary-1" d="M6 6V0h2v6h6v2H8v6H6V8H0V6h6Z" />
                         </svg>
-                        Create Class
-                    </button>
+                        Invite
+                    </button> */}
                 </div>
                 <div className="w-full h-[90%] flex gap-4">
                     <div className="w-full h-full border-2 border-primary-3 rounded-[10px] p-5">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-medium text-text-1">Student List</h2>
-                            <h2 className="text-xl font-medium text-text-2">{studentList.length}/30</h2>
+                            <h2 className="text-xl font-medium text-text-2">{filteredStudentList.length}/30</h2>
                         </div>
                         <div className="w-full h-[92%] overflow-y-auto">
-                            {studentList.map((student) => (
-                                <TeacherClassStudentListItem key={student.id} student={student} />
+                            {filteredStudentList.map((student) => (
+                                <TeacherClassStudentListItem
+                                    key={student.id}
+                                    student={student}
+                                    onClick={() => setSelectedStudent(student)} // Handle click event
+                                />
                             ))}
                         </div>
                     </div>
 
-                    <></>
-
                     <div className="w-[300px] border-2 border-primary-3 rounded-[10px] p-5 flex flex-col gap-5">
                         <h2 className="text-xl font-medium text-text-1">Student Details</h2>
-                        <img
-                            className="w-[125px] h-[125px] object-cover object-center rounded-full mx-auto"
-                            src="https://placehold.co/50x50"
-                            alt=""
-                        />
-                        <div className="flex flex-col gap-2">
-                            <p className="text-text-2">First Name</p>
-                            <h4 className="text-text-2 bg-primary-3 p-2 px-4 rounded-[10px]">Adolf</h4>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <p className="text-text-2">Last Name</p>
-                            <h4 className="text-text-2 bg-primary-3 p-2 px-4 rounded-[10px]">Niggler</h4>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <p className="text-text-2">Date Added</p>
-                            <h4 className="text-text-2 bg-primary-3 p-2 px-4 rounded-[10px]">11/30/2024</h4>
-                        </div>
+                        {selectedStudent ? (
+                            <>
+                                <img
+                                    className="w-[125px] h-[125px] object-cover object-center rounded-full mx-auto"
+                                    src={selectedStudent.profile_picture || "https://placehold.co/50x50"}
+                                    alt=""
+                                />
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-text-2">First Name</p>
+                                    <h4 className="text-text-2 bg-primary-3 p-2 px-4 rounded-[10px]">
+                                        {selectedStudent.first_name}
+                                    </h4>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-text-2">Last Name</p>
+                                    <h4 className="text-text-2 bg-primary-3 p-2 px-4 rounded-[10px]">
+                                        {selectedStudent.last_name}
+                                    </h4>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-text-2">Date Added</p>
+                                    <h4 className="text-text-2 bg-primary-3 p-2 px-4 rounded-[10px]">
+                                        {selectedStudent.join_date
+                                            ? new Date(selectedStudent.join_date).toLocaleDateString("en-US", {
+                                                  year: "numeric",
+                                                  month: "long",
+                                                  day: "numeric",
+                                              })
+                                            : "N/A"}
+                                    </h4>
+                                </div>
+                            </>
+                        ) : (
+                            <p className="text-text-2">Select a student to see details</p>
+                        )}
                     </div>
                 </div>
             </div>

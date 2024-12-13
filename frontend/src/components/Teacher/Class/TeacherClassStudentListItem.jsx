@@ -1,9 +1,12 @@
 import React from "react";
 
-const TeacherClassStudentListItem = ({ student }) => {
+const TeacherClassStudentListItem = ({ student, onClick }) => {
     console.log("Student object ", student);
     return (
-        <div className="cursor-pointer w-full h-[69px] border-b-2 border-0 border-primary-3 flex items-center justify-between">
+        <div
+            className="student-list-item cursor-pointer w-full h-[69px] border-b-2 border-0 border-primary-3 flex items-center justify-between"
+            onClick={onClick} // Handle click event
+        >
             <div className="h-full flex items-center gap-2">
                 <img
                     className="w-[30px] h-[30px] rounded-full object-cover object-center"
