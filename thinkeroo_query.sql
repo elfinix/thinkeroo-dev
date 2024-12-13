@@ -33,3 +33,20 @@ WHERE
     
 DROP TABLE authtoken_token;
     
+-- select the total number of questions in a quiz
+SELECT 
+    COUNT(q.id) AS total_questions
+FROM
+    question q
+JOIN
+    quiz z ON q.quiz_id = z.id
+WHERE
+    z.id = 1;
+    
+-- select the total number of students in a class
+SELECT 
+    COUNT(u.id) AS total_students
+FROM
+    user u
+JOIN
+    user_class uc ON u.id = uc.user_id

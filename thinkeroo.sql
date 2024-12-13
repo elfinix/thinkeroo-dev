@@ -152,3 +152,7 @@ CREATE TABLE student_score (
 
 ALTER TABLE student_score
 ADD COLUMN time_finished TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+-- Ensure uniqueness of student-quiz pair in student_scores
+ALTER TABLE student_score
+ADD CONSTRAINT unique_student_quiz_pair UNIQUE (student_id, quiz_id);

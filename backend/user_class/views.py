@@ -1,3 +1,4 @@
+from .models import Class
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -30,3 +31,9 @@ def remove_user_from_class(request, pk):
         return Response({"message": "User removed from class successfully"}, status=status.HTTP_200_OK)
     except UserClass.DoesNotExist:
         return Response({"error": "UserClass entry not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def total_students_in_class(_, class_id):
+    """Retrieve the total number of students in a class."""
+    total_students = UserClass.objects.filter(class_instance=class_id).count()
+    return Response({'total_students': total_students}, status=status.HTTP_200_OK)

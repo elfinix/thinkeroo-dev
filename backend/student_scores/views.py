@@ -4,6 +4,7 @@ from rest_framework.response import Response as DRFResponse
 from rest_framework import status
 from .models import StudentScore
 from .serializers import StudentScoreSerializer
+from django.db import connection
 
 @api_view(['GET', 'POST'])
 def student_score_list(request):
@@ -47,6 +48,20 @@ def student_score_detail(request, pk):
 def student_scores_by_quiz(request, quiz_id):
     """Retrieve student scores by quiz."""
     scores = StudentScore.objects.filter(quiz_instance=quiz_id).select_related('student_instance')
+    
+    # Query to get the total number of questions in the quiz
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT COUNT(q.id) AS total_questions
+            FROM question q
+            JOIN quiz z ON q.quiz_id = z.id
+            WHERE z.id = %s
+        """, [quiz_id])
+        total_questions = cursor.fetchone()[0]
+
+    # Query to get the number of students who took the quiz
+    number_of_respondents = scores.count()
+
     data = [
         {
             'student_id': score.student_instance.id,
@@ -55,7 +70,9 @@ def student_scores_by_quiz(request, quiz_id):
             'student_name': (score.student_instance.first_name + ' ' + score.student_instance.last_name),
             'score': score.total_score,
             'time_started': score.time_started,
-            'time_taken': (score.time_finished - score.time_started).total_seconds() / 60
+            'time_taken': (score.time_finished - score.time_started).total_seconds() / 60,
+            'total_questions': total_questions,
+            'number_of_respondents': number_of_respondents
         }
         for score in scores
     ]

@@ -29,7 +29,9 @@ const TeacherQuizStudentScoresListItem = ({ studentScore }) => {
                 <p className="text-positive">No cheating mechanisms detected</p>
             </div>
             <div className="h-full flex items-center ml-auto">
-                <p className="text-text-1">{studentScore.score}/100</p>
+                <p className="text-text-1">
+                    {studentScore.score}/{studentScore.total_questions}
+                </p>
             </div>
         </div>
     );

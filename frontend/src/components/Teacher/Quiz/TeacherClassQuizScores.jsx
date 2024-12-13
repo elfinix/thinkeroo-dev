@@ -5,14 +5,14 @@ import TeacherQuizStudentScoresList from "./TeacherQuizStudentScoresList";
 import TeacherQuizGradeReport from "./TeacherQuizGradeReport";
 import { API_ENDPOINT } from "/constants/constants";
 
-const TeacherClassQuizScores = ({ selectedQuiz, setShowQuizScore }) => {
+const TeacherClassQuizScores = ({ selectedQuiz, classId, setShowQuizScore }) => {
     const [showReport, setShowReport] = useState(false);
     const [studentScores, setStudentScores] = useState([]);
 
     useEffect(() => {
         const fetchStudentScores = async () => {
             try {
-                const response = await axios.get(`${API_ENDPOINT}api/student-scores/quiz/${selectedQuiz.id}`);
+                const response = await axios.get(`${API_ENDPOINT}/api/student-scores/quiz/${selectedQuiz.id}`);
                 setStudentScores(response.data);
             } catch (error) {
                 console.error("Failed to fetch student scores:", error);
@@ -44,16 +44,17 @@ const TeacherClassQuizScores = ({ selectedQuiz, setShowQuizScore }) => {
                         <div>
                             <p className="text-text-2">Quiz Schedule</p>
                             <h4 className="text-text-1 text-xl">
-                                {new Date(selectedQuiz.schedule).toLocaleTimeString([], {
+                                {new Date(selectedQuiz.schedule).toLocaleTimeString("en-US", {
                                     hour: "2-digit",
                                     minute: "2-digit",
+                                    timeZone: "UTC",
                                 })}{" "}
-                                | {new Date(selectedQuiz.schedule).toLocaleDateString()}
+                                | {new Date(selectedQuiz.schedule).toLocaleDateString("en-US", { timeZone: "UTC" })}
                             </h4>
                         </div>
                     </div>
                     <div className="w-full h-[88%] border-2 border-solid border-primary-3 rounded-[10px]">
-                        <TeacherQuizStudentScoresList studentScores={studentScores} />
+                        <TeacherQuizStudentScoresList studentScores={studentScores} classId={classId} />
                     </div>
                 </div>
             </div>

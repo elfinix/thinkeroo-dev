@@ -4,13 +4,13 @@ import { API_ENDPOINT } from "/constants/constants";
 
 const TeacherClassQuizCard = ({ quiz, viewScore }) => {
     const [questionCount, setQuestionCount] = useState([]);
+    console.log(quiz);
 
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const response = await axios.get(`${API_ENDPOINT}api/quizzes/question/${quiz.id}/`);
+                const response = await axios.get(`${API_ENDPOINT}/api/quizzes/question/${quiz.id}/`);
                 setQuestionCount(response.data.length);
-                console.log(response.data.length);
             } catch (error) {
                 console.error("Failed to fetch questions:", error);
             }
@@ -55,12 +55,18 @@ const TeacherClassQuizCard = ({ quiz, viewScore }) => {
                         />
                     </svg>
                     <p className="text-text-2">
-                        {new Date(quiz.schedule).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} |{" "}
-                        {new Date(quiz.schedule).toLocaleDateString()}
+                        {new Date(quiz.schedule).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            timeZone: "UTC",
+                        })}{" "}
+                        | {new Date(quiz.schedule).toLocaleDateString("en-US", { timeZone: "UTC" })}
                     </p>
                 </div>
             </div>
-            <p className="text-text-2">Created: {new Date(quiz.created_at).toLocaleDateString()}</p>
+            <p className="text-text-2">
+                Created: {new Date(quiz.created_at).toLocaleDateString("en-US", { timeZone: "UTC" })}
+            </p>
         </div>
     );
 };

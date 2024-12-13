@@ -23,7 +23,7 @@ const TeacherClassQuiz = ({ viewScore, classId }) => {
     return (
         <div className="w-full h-5/6 flex flex-wrap gap-12 overflow-y-auto">
             {quizzes.map((quiz) => (
-                <TeacherClassQuizCard key={quiz.id} quiz={quiz} viewScore={viewScore} />
+                <TeacherClassQuizCard key={quiz.id} quiz={quiz} viewScore={viewScore} classId={classId} />
             ))}
         </div>
     );
