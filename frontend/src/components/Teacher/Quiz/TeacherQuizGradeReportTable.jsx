@@ -1,34 +1,43 @@
-import React from 'react'
+import React from "react";
 
-const TeacherQuizGradeReportTable = () => {
+const TeacherQuizGradeReportTable = ({ studentScores = [] }) => {
     return (
         <table className="w-full overflow-x-hidden table-fixed">
-            <col width="30"/>
-            <col width="20"/>
-            <col width="30"/>
-            <col width="20"/>
-            <col width="10"/>
+            <colgroup>
+                <col width="30" />
+                <col width="20" />
+                <col width="30" />
+                <col width="20" />
+                <col width="10" />
+            </colgroup>
             <tbody>
-                <tr className="border-b-2 border-0 border-primary-3 w-full">
-                    <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-text-1">
-                        Adolf Niggler
-                    </td>
-                    <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-text-2">
-                        45 Minutes
-                    </td>
-                    <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-text-2">
-                        10/12/2024 | 4:00 PM
-                    </td>
-                    <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-negative">
-                        Detected: Alt + Tab
-                    </td>
-                    <td className="overflow-hidden text-ellipsis whitespace-nowrap text-end h-[62px] items-center text-text-2">
-                        90
-                    </td>
-                </tr>
+                {studentScores.map((studentScore) => (
+                    <tr key={studentScore.student_id} className="border-b-2 border-0 border-primary-3 w-full">
+                        <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-text-1">
+                            {studentScore.student_name}
+                        </td>
+                        <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-text-2">
+                            {studentScore.time_taken} Minutes
+                        </td>
+                        <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-text-2">
+                            {new Date(studentScore.time_finished).toLocaleDateString("en-US", { timeZone: "UTC" })} |{" "}
+                            {new Date(studentScore.time_finished).toLocaleTimeString("en-US", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                timeZone: "UTC",
+                            })}
+                        </td>
+                        <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-positive">
+                            {studentScore.cheat_status ? studentScore.cheat_status : "None detected"}
+                        </td>
+                        <td className="overflow-hidden text-ellipsis whitespace-nowrap text-end h-[62px] items-center text-text-2">
+                            {studentScore.score}
+                        </td>
+                    </tr>
+                ))}
             </tbody>
         </table>
-    )
-}
+    );
+};
 
-export default TeacherQuizGradeReportTable
+export default TeacherQuizGradeReportTable;

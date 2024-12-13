@@ -70,6 +70,7 @@ def student_scores_by_quiz(request, quiz_id):
             'student_name': (score.student_instance.first_name + ' ' + score.student_instance.last_name),
             'score': score.total_score,
             'time_started': score.time_started,
+            'time_finished': score.time_finished,
             'time_taken': (score.time_finished - score.time_started).total_seconds() / 60,
             'total_questions': total_questions,
             'number_of_respondents': number_of_respondents

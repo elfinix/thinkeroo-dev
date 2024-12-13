@@ -58,7 +58,7 @@ const TeacherClassQuizScores = ({ selectedQuiz, classId, setShowQuizScore }) => 
                     </div>
                 </div>
             </div>
-            {showReport && <TeacherQuizGradeReport setShowReport={setShowReport} />}
+            {showReport && <TeacherQuizGradeReport setShowReport={setShowReport} studentScores={studentScores} />}
         </>
     );
 };
