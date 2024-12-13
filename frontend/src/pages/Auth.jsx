@@ -64,7 +64,7 @@ const Auth = () => {
         } catch (error) {
             console.error("Login Error:", error); // Debugging: Log the error
             if (error.response && error.response.data) {
-                setError(error.response.data.error);
+                setError("Incorrect username/email or password. Please try again.");
             } else {
                 setError("An error occurred. Please try again.");
             }
@@ -83,7 +83,6 @@ const Auth = () => {
                 <div className="text-center text-gray-500 text-sm ml-2">
                     Enter your registered username or email and password to continue.{" "}
                 </div>
-
                 <div className="flex flex-col sm:w-[80%] md:w-[70%] lg:w-[80%]">
                     <label htmlFor="identifier" className="text-white text-sm mb-1">
                         Username or Email
@@ -99,7 +98,6 @@ const Auth = () => {
                         autoComplete="username"
                     />
                 </div>
-
                 <div className="flex flex-col sm:w-[80%] md:w-[70%] lg:w-[80%]">
                     <label htmlFor="password" className="text-white text-sm mb-1">
                         Password
@@ -126,7 +124,6 @@ const Auth = () => {
                         </button>
                     </div>
                 </div>
-
                 <div className="flex flex-row sm:w-[80%] md:w-[70%] lg:w-[80%] justify-between">
                     <div className="flex items-center">
                         <input
@@ -143,6 +140,7 @@ const Auth = () => {
 
                     <a className="text-center text-gray-500 text-sm ml-2">Forgot Password?</a>
                 </div>
+                {error && <p className="text-red-500 text-sm">{error}</p>} {/* Display error message */}
                 <button
                     type="submit"
                     className="sm:w-[80%] md:w-[70%] lg:w-[80%] rounded-full p-2 bg-accent-1 font-bold font-lexend"
