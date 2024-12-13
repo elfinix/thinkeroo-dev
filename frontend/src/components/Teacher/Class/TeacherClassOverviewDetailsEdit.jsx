@@ -35,9 +35,9 @@ const TeacherClassOverviewDetailsEdit = ({ setShowEditDetails, classDetails, set
         }
 
         const formData = new FormData();
-        formData.append("class_name", className);
+        formData.append("name", className);
         if (classImage) {
-            formData.append("class_image", classImage);
+            formData.append("banner_img", classImage);
         }
         formData.append("class_limit", studentLimit);
 
