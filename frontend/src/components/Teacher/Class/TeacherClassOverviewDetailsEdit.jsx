@@ -7,6 +7,8 @@ const TeacherClassOverviewDetailsEdit = ({ setShowEditDetails, classDetails, set
     const [classImage, setClassImage] = useState(null);
     const [studentLimit, setStudentLimit] = useState(classDetails ? classDetails.class_limit : 0);
     const [error, setError] = useState(null);
+    const [classNameError, setClassNameError] = useState(false);
+    const [studentLimitError, setStudentLimitError] = useState(false);
 
     useEffect(() => {
         if (classDetails) {
@@ -22,15 +24,22 @@ const TeacherClassOverviewDetailsEdit = ({ setShowEditDetails, classDetails, set
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validation check for student limit
-        if (studentLimit < totalStudents) {
-            setError(`Student limit cannot be less than the current number of students (${totalStudents}).`);
-            return;
-        }
+        // Reset errors
+        setError(null);
+        setClassNameError(false);
+        setStudentLimitError(false);
 
         // Validation check for class name
         if (!className || !className.trim()) {
             setError("Please provide a class name.");
+            setClassNameError(true);
+            return;
+        }
+
+        // Validation check for student limit
+        if (studentLimit < totalStudents) {
+            setError(`Student limit cannot be less than the current number of students (${totalStudents}).`);
+            setStudentLimitError(true);
             return;
         }
 
@@ -66,7 +75,9 @@ const TeacherClassOverviewDetailsEdit = ({ setShowEditDetails, classDetails, set
                             value={className}
                             onChange={(e) => setClassName(e.target.value)}
                             placeholder="What's the name of the class"
-                            className="mb-4 w-full text-xl text-text-1 bg-transparent border-2 border-solid border-primary-3 h-[57px] rounded-[10px] p-2 placeholder:text-text-2"
+                            className={`mb-4 w-full text-xl text-text-1 bg-transparent border-2 border-solid h-[57px] rounded-[10px] p-2 placeholder:text-text-2 ${
+                                classNameError ? "border-red-500" : "border-primary-3"
+                            }`}
                             type="text"
                         />
                     </label>
@@ -85,7 +96,9 @@ const TeacherClassOverviewDetailsEdit = ({ setShowEditDetails, classDetails, set
                             value={studentLimit}
                             onChange={(e) => setStudentLimit(e.target.value)}
                             placeholder="Number of students allowed"
-                            className="mb-4 w-full text-xl text-text-1 bg-transparent border-2 border-solid border-primary-3 h-[57px] rounded-[10px] p-2 placeholder:text-text-2"
+                            className={`mb-4 w-full text-xl text-text-1 bg-transparent border-2 border-solid h-[57px] rounded-[10px] p-2 placeholder:text-text-2 ${
+                                studentLimitError ? "border-red-500" : "border-primary-3"
+                            }`}
                             type="number"
                             min={1}
                         />

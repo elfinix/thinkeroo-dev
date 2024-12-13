@@ -71,7 +71,7 @@ def student_scores_by_quiz(request, quiz_id):
             'score': score.total_score,
             'time_started': score.time_started,
             'time_finished': score.time_finished,
-            'time_taken': (score.time_finished - score.time_started).total_seconds() / 60,
+            'time_taken': round((score.time_finished - score.time_started).total_seconds() / 360, 2),
             'total_questions': total_questions,
             'number_of_respondents': number_of_respondents
         }

@@ -17,7 +17,7 @@ const TeacherQuizGradeReportTable = ({ studentScores = [] }) => {
                             {studentScore.student_name}
                         </td>
                         <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-text-2">
-                            {studentScore.time_taken} Minutes
+                            {studentScore.time_taken} minutes
                         </td>
                         <td className="overflow-hidden text-ellipsis whitespace-nowrap text-start h-[62px] items-center text-text-2">
                             {new Date(studentScore.time_finished).toLocaleDateString("en-US", { timeZone: "UTC" })} |{" "}

@@ -5,7 +5,7 @@ import TeacherClassInviteStudent from "./TeacherClassInviteStudent";
 import { API_ENDPOINT } from "/constants/constants";
 import { getClassSelector } from "/src/global/globals";
 
-const TeacherClassOverviewStudentList = ({ studentList }) => {
+const TeacherClassOverviewStudentList = ({ studentList, setStudentList }) => {
     const [invite, setInvite] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null); // State to track the selected student
     const [searchQuery, setSearchQuery] = useState(""); // State to track the search query
@@ -34,6 +34,15 @@ const TeacherClassOverviewStudentList = ({ studentList }) => {
         }
     }, [classId]);
 
+    const handleDeleteStudent = async (studentId) => {
+        try {
+            await axios.delete(`${API_ENDPOINT}/api/classes/${classId}/students/${studentId}/`);
+            setStudentList((prevList) => prevList.filter((student) => student.id !== studentId));
+        } catch (error) {
+            console.error("Failed to delete student:", error);
+        }
+    };
+
     return (
         <>
             <div className="w-full flex flex-col h-[90%] pb-8">
@@ -45,7 +54,8 @@ const TeacherClassOverviewStudentList = ({ studentList }) => {
                         onChange={(e) => setSearchQuery(e.target.value)} // Update search query state on change
                         className="w-[502px] text-text-1 focus:outline-text-1 placeholder:text-text-2 placeholder:font-medium h-[42px] px-4 rounded-[10px] border-2 border-primary-3 bg-transparent"
                     />
-                    <button
+                </div>
+                {/* <button
                         onClick={() => setInvite(true)}
                         className="w-[163px] h-[42px] flex items-center justify-center text-primary-1 font-medium text-[16px] bg-accent-1 rounded-[50px] gap-2"
                     >
@@ -53,8 +63,7 @@ const TeacherClassOverviewStudentList = ({ studentList }) => {
                             <path className="fill-primary-1" d="M6 6V0h2v6h6v2H8v6H6V8H0V6h6Z" />
                         </svg>
                         Create Class
-                    </button>
-                </div>
+                    </button> */}
                 <div className="w-full h-[90%] flex gap-4">
                     <div className="w-full h-full border-2 border-primary-3 rounded-[10px] p-5">
                         <div className="flex justify-between items-center mb-4">
@@ -69,6 +78,7 @@ const TeacherClassOverviewStudentList = ({ studentList }) => {
                                     key={student.id}
                                     student={student}
                                     onClick={() => setSelectedStudent(student)} // Handle click event
+                                    onDelete={handleDeleteStudent} // Handle delete event
                                 />
                             ))}
                         </div>
