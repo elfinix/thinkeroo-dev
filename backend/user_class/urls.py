@@ -6,5 +6,6 @@ urlpatterns = [
     path('', views.list_user_classes, name='list_user_classes'),
     path('<int:pk>/remove/', views.remove_user_from_class, name='remove_user_from_class'),
     
-        path('total_students/<int:class_id>/', views.total_students_in_class, name='total_students_in_class'),
+    path('total_students/<int:class_id>/', views.total_students_in_class, name='total_students_in_class'),
+    path('students/<int:class_id>/', views.list_students_in_class, name='list_students_in_class'),  
 ]

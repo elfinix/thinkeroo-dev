@@ -4,7 +4,7 @@ import TeacherClassOverviewBody from "./TeacherClassOverviewBody";
 import TeacherClassQuiz from "../Quiz/TeacherClassQuiz";
 import TeacherClassOverviewStudentList from "./TeacherClassOverviewStudentList";
 
-const TeacherClassOverviewRender = ({ render, viewScore, setShowEditDetails, classDetails }) => {
+const TeacherClassOverviewRender = ({ render, viewScore, setShowEditDetails, classDetails, studentList }) => {
     let content;
 
     switch (render) {
@@ -20,7 +20,7 @@ const TeacherClassOverviewRender = ({ render, viewScore, setShowEditDetails, cla
             content = <TeacherClassQuiz viewScore={viewScore} classId={classDetails.id} />;
             break;
         case "Student":
-            content = <TeacherClassOverviewStudentList />;
+            content = <TeacherClassOverviewStudentList studentList={studentList} />;
             break;
         default:
             content = (

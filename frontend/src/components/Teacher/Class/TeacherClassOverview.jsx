@@ -13,6 +13,7 @@ const TeacherClassOverview = ({ selectedClass }) => {
     const [selectedQuiz, setSelectedQuiz] = useState();
     const [showEditDetails, setShowEditDetails] = useState(false);
     const [classDetails, setClassDetails] = useState(null);
+    const [studentList, setStudentList] = useState([]);
 
     useEffect(() => {
         const fetchClassDetails = async () => {
@@ -24,7 +25,18 @@ const TeacherClassOverview = ({ selectedClass }) => {
             }
         };
 
+        const fetchStudentList = async () => {
+            try {
+                const response = await axios.get(`${API_ENDPOINT}/api/user-class/students/${selectedClass.id}/`);
+                setStudentList(response.data);
+                console.log("Fetched student list:", response.data); // Add this line to check the fetched data
+            } catch (error) {
+                console.error("Failed to fetch student list:", error);
+            }
+        };
+
         fetchClassDetails();
+        fetchStudentList();
     }, [selectedClass]);
 
     const viewScore = (quiz) => {
@@ -42,6 +54,7 @@ const TeacherClassOverview = ({ selectedClass }) => {
                         viewScore={viewScore}
                         setShowEditDetails={setShowEditDetails}
                         classDetails={classDetails}
+                        studentList={studentList} // Pass student list to the render component
                     />
                 </>
             )}

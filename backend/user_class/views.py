@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import UserClass
 from .serializers import UserClassSerializer
+from django.db.models import Prefetch
 
 @api_view(['POST'])
 def add_user_to_class(request):
@@ -37,3 +38,10 @@ def total_students_in_class(_, class_id):
     """Retrieve the total number of students in a class."""
     total_students = UserClass.objects.filter(class_instance=class_id).count()
     return Response({'total_students': total_students}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def list_students_in_class(request, class_id):
+    """List all students in a specific class."""
+    user_classes = UserClass.objects.filter(class_instance=class_id).select_related('user')
+    students = [{"first_name": uc.user.first_name, "last_name": uc.user.last_name} for uc in user_classes]
+    return Response(students, status=status.HTTP_200_OK)
