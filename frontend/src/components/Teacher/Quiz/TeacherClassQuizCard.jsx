@@ -4,8 +4,6 @@ import { API_ENDPOINT } from "/constants/constants";
 
 const TeacherClassQuizCard = ({ quiz, viewScore }) => {
     const [questionCount, setQuestionCount] = useState([]);
-    console.log(quiz);
-
     useEffect(() => {
         const fetchQuestions = async () => {
             try {

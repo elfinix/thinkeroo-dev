@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import TeacherQuizStudentScoresListItem from "./TeacherQuizStudentScoresListItem";
 import { API_ENDPOINT } from "/constants/constants";
+import { getClassSelector } from "/src/global/globals";
 
-const TeacherQuizStudentScoresList = ({ studentScores, classId }) => {
+const TeacherQuizStudentScoresList = ({ studentScores }) => {
     const [totalStudents, setTotalStudents] = useState(0);
+    const classId = getClassSelector();
 
     useEffect(() => {
         const fetchTotalStudents = async () => {

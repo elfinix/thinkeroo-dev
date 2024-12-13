@@ -3,9 +3,11 @@ import axios from "axios";
 import TeacherClassQuizCard from "./TeacherClassQuizCard";
 
 import { API_ENDPOINT } from "/constants/constants";
+import { setClassSelector } from "/src/global/globals";
 
 const TeacherClassQuiz = ({ viewScore, classId }) => {
     const [quizzes, setQuizzes] = useState([]);
+    setClassSelector(classId);
 
     useEffect(() => {
         const fetchQuizzes = async () => {
