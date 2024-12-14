@@ -1,17 +1,21 @@
 from rest_framework import serializers
+from quizzes.serializers import QuizSerializer
 from .models import QuizQuestion
 from quizzes.models import Quiz
 from questions.models import Question
+from options.models import Option
 
-class QuizSerializer(serializers.ModelSerializer):
+class OptionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Quiz
-        fields = '__all__'
+        model = Option
+        fields = ['id', 'content', 'is_correct']
 
 class QuestionSerializer(serializers.ModelSerializer):
+    options = OptionSerializer(many=True, read_only=True)
+
     class Meta:
         model = Question
-        fields = '__all__'
+        fields = ['id', 'content', 'type', 'options']  # Include options field
 
 class QuizQuestionSerializer(serializers.ModelSerializer):
     quiz_instance = QuizSerializer()

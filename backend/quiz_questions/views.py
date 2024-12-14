@@ -10,7 +10,7 @@ from .serializers import QuizQuestionSerializer
 def quiz_question_list(request):
     """Handle GET (list) and POST (create) requests for quiz-questions."""
     if request.method == 'GET':
-        quiz_questions = QuizQuestion.objects.all()  # Retrieve all quiz-question records
+        quiz_questions = QuizQuestion.objects.all().select_related('question_instance').prefetch_related('question_instance__options')
         serializer = QuizQuestionSerializer(quiz_questions, many=True)
         return Response(serializer.data)
 
@@ -25,7 +25,7 @@ def quiz_question_list(request):
 def quiz_question_detail(request, pk):
     """Handle GET, PUT, and DELETE requests for a specific quiz-question."""
     try:
-        quiz_question = QuizQuestion.objects.get(pk=pk)
+        quiz_question = QuizQuestion.objects.select_related('question_instance').prefetch_related('question_instance__options').get(pk=pk)
     except QuizQuestion.DoesNotExist:
         return Response({'error': 'Quiz-Question relationship not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -56,6 +56,6 @@ def user_quizzes(request):
 @api_view(['GET'])
 def questions_by_quiz(request, quiz_id):
     """Retrieve all questions for a specific quiz."""
-    quiz_questions = QuizQuestion.objects.filter(quiz_instance_id=quiz_id)
+    quiz_questions = QuizQuestion.objects.filter(quiz_instance_id=quiz_id).select_related('question_instance').prefetch_related('question_instance__options')
     serializer = QuizQuestionSerializer(quiz_questions, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)

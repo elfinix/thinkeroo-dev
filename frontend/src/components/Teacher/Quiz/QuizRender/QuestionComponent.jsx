@@ -1,11 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ChooseFromDatabank from "./ChooseFromDataRepo";
 
-const QuestionComponent = ({ index }) => {
-    const [questionType, setQuestionType] = useState("True or False");
-    const [choices, setChoices] = useState([""]);
+const QuestionComponent = ({ index, question, handleRemoveQuestion }) => {
+    const [questionType, setQuestionType] = useState(() => {
+        switch (question.type) {
+            case "MC":
+                return "Multiple Choice";
+            case "IDN":
+                return "Identification";
+            case "TF":
+                return "True or False";
+            default:
+                return "True or False";
+        }
+    });
+    const [content, setContent] = useState(question.content || "");
+    const [choices, setChoices] = useState([]);
     const [correctAnswer, setCorrectAnswer] = useState(null);
     const [showBank, setShowBank] = useState(false);
+
+    useEffect(() => {
+        if (question.options) {
+            setChoices(question.options.map((option) => option.content));
+            const correctOption = question.options.find((option) => option.is_correct);
+            setCorrectAnswer(correctOption ? question.options.indexOf(correctOption) : null);
+        }
+    }, [question]);
 
     const handleAddChoice = () => {
         setChoices([...choices, ""]);
@@ -32,17 +52,19 @@ const QuestionComponent = ({ index }) => {
                         <p className="text-text-2 mb-2">Question</p>
                         <input
                             type="text"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
                             placeholder="Enter your question"
                             className="border-2 border-primary-3 text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px] mb-8"
                         />
                         <div className="flex flex-col gap-4 mt-2">
-                            {["True", "False"].map((option, idx) => (
+                            {choices.map((option, idx) => (
                                 <button
                                     key={option}
                                     type="button"
-                                    onClick={() => setCorrectAnswer(idx)}
+                                    onClick={() => setCorrectAnswer(option)}
                                     className={`border-2 rounded-[10px] border-primary-3 p-2 ${
-                                        correctAnswer === idx ? "text-text-1 border-2 border-secondary-1" : ""
+                                        correctAnswer === option ? "text-text-1 border-2 border-secondary-1" : ""
                                     }`}
                                 >
                                     {option}
@@ -57,14 +79,18 @@ const QuestionComponent = ({ index }) => {
                         <p className="text-text-2 mb-2">Question</p>
                         <input
                             type="text"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
                             placeholder="Enter your question"
                             className="border-2 border-primary-3 text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px] mb-8"
                         />
                         <p className="mt-2">Answer</p>
                         <input
                             type="text"
+                            value={correctAnswer || ""}
+                            onChange={(e) => setCorrectAnswer(e.target.value)}
                             placeholder="Enter the answer"
-                            className="border-2 border-secondary-1 outline-none text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px]"
+                            className="border-2 border-primary-3 text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px]"
                         />
                     </div>
                 );
@@ -74,6 +100,8 @@ const QuestionComponent = ({ index }) => {
                         <p className="text-text-2 mb-2">Question</p>
                         <input
                             type="text"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
                             placeholder="Enter your question"
                             className="border-2 border-primary-3 text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px] mb-8"
                         />
@@ -83,8 +111,8 @@ const QuestionComponent = ({ index }) => {
                                     <input
                                         type="radio"
                                         name={`correct-answer-${index}`}
-                                        checked={correctAnswer === idx}
-                                        onChange={() => setCorrectAnswer(idx)}
+                                        checked={correctAnswer === choice}
+                                        onChange={() => setCorrectAnswer(choice)}
                                         className="cursor-pointer"
                                     />
                                     <input
@@ -93,7 +121,7 @@ const QuestionComponent = ({ index }) => {
                                         value={choice}
                                         onChange={(e) => handleChoiceChange(idx, e.target.value)}
                                         className={`border-2 ${
-                                            correctAnswer === idx ? "border-secondary-1" : "border-primary-3"
+                                            correctAnswer === choice ? "border-secondary-1" : "border-primary-3"
                                         } text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px]`}
                                     />
                                     <button
@@ -101,18 +129,7 @@ const QuestionComponent = ({ index }) => {
                                         onClick={() => handleRemoveChoice(idx)}
                                         className="bg-transparent border-none mr-1"
                                     >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                fill="#F93F3F"
-                                                d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10Zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm0-9.414 2.828-2.829 1.415 1.415L13.414 12l2.829 2.828-1.415 1.415L12 13.414l-2.828 2.829-1.415-1.415L10.586 12 7.757 9.172l1.415-1.415L12 10.586Z"
-                                            />
-                                        </svg>
+                                        {/* <svg */}
                                     </button>
                                 </div>
                             ))}

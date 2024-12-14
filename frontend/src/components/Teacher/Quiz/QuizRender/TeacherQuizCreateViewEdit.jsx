@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import QuestionComponent from "./QuestionComponent";
 import { API_ENDPOINT } from "/constants/constants";
+import { FaArrowUp, FaArrowDown, FaTrash } from "react-icons/fa";
 
 const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
     const [questions, setQuestions] = useState([]);
@@ -15,6 +16,29 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
     const [classes, setClasses] = useState([]);
     const [showScore, setShowScore] = useState(false); // Manages 'shows_results'
     const [isDurationValid, setIsDurationValid] = useState(true);
+
+    const fetchQuizQuestions = async () => {
+        try {
+            const response = await axios.get(`${API_ENDPOINT}/api/quiz-questions/quiz/${selectedQuiz.id}/`);
+            const quizQuestions = response.data.map((qq) => ({
+                id: qq.question_instance.id,
+                type: qq.question_instance.type,
+                content: qq.question_instance.content,
+                options: qq.question_instance.options.map((option) => ({
+                    content: option.content,
+                    is_correct: option.is_correct,
+                })),
+                correctAnswer: qq.question_instance.options.find((option) => option.is_correct)?.content || null,
+            }));
+            // Ensure unique IDs
+            const uniqueQuestions = quizQuestions.filter(
+                (question, index, self) => index === self.findIndex((q) => q.id === question.id)
+            );
+            setQuestions(uniqueQuestions);
+        } catch (error) {
+            console.error("Failed to fetch quiz questions:", error);
+        }
+    };
 
     useEffect(() => {
         if (selectedQuiz) {
@@ -60,20 +84,22 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
 
         fetchClasses();
 
-        // Fetch questions for the selected quiz
-        const fetchQuizQuestions = async () => {
-            try {
-                const response = await axios.get(`${API_ENDPOINT}/api/quiz-questions/quiz/${selectedQuiz.id}/`);
-                setQuestions(response.data);
-            } catch (error) {
-                console.error("Failed to fetch quiz questions:", error);
-            }
-        };
-
         if (selectedQuiz) {
             fetchQuizQuestions();
         }
     }, [selectedQuiz]);
+
+    useEffect(() => {
+        if (selectedQuiz) {
+            fetchQuizQuestions();
+        }
+    }, [selectedQuiz]);
+
+    // Add the debugging useEffect here
+    useEffect(() => {
+        console.log("Selected Quiz:", selectedQuiz);
+        console.log("Questions State:", questions);
+    }, [selectedQuiz, questions]);
 
     // Centralized Validation for Duration
     useEffect(() => {
@@ -85,12 +111,29 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
 
     // Add a new question
     const handleAddQuestion = () => {
-        setQuestions([...questions, { id: Date.now(), type: "True or False", question: "", choices: [] }]);
+        const newQuestion = { id: Date.now(), type: "True or False", content: "", choices: [] };
+        setQuestions([...questions, newQuestion]);
     };
 
     // Remove a question
     const handleRemoveQuestion = (id) => {
         setQuestions(questions.filter((question) => question.id !== id));
+    };
+
+    // Move question up
+    const moveQuestionUp = (index) => {
+        if (index === 0) return;
+        const newQuestions = [...questions];
+        [newQuestions[index - 1], newQuestions[index]] = [newQuestions[index], newQuestions[index - 1]];
+        setQuestions(newQuestions);
+    };
+
+    // Move question down
+    const moveQuestionDown = (index) => {
+        if (index === questions.length - 1) return;
+        const newQuestions = [...questions];
+        [newQuestions[index + 1], newQuestions[index]] = [newQuestions[index], newQuestions[index + 1]];
+        setQuestions(newQuestions);
     };
 
     // Handle input changes
@@ -166,7 +209,7 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                     className="bg-accent-1 p-2 px-4 rounded-[50px] flex items-center justify-center gap-2 font-medium"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 14 14">
-                        <path fill="#1E1E2C" d="M6 6V0h2v6h6v2H8v6H6V8H0V6h6Z" />
+                        <path fill="#1E1E2C" d="M5 13l-5-5 1.414-1.414L5 10.172l7.586-7.586L14 4l-9 9z" />
                     </svg>
                     <p className="text-base">Save Quiz</p>
                 </button>
@@ -303,22 +346,29 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                                 question={question}
                                 handleRemoveQuestion={handleRemoveQuestion}
                             />
-                            <button
-                                type="button"
-                                onClick={() => handleRemoveQuestion(question.id)}
-                                className="absolute top-0 right-0 m-6"
-                            >
-                                {/* Add your remove icon here */}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="16"
-                                    height="16"
-                                    fill="none"
-                                    viewBox="0 0 16 16"
+                            <div className="absolute top-0 right-0 m-6 flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => moveQuestionUp(index)}
+                                    className="text-blue-500 border p-2 rounded"
                                 >
-                                    <path fill="#F5F5F5" d="M2 2l12 12M14 2L2 14" />
-                                </svg>
-                            </button>
+                                    <FaArrowUp />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => moveQuestionDown(index)}
+                                    className="text-blue-500 border p-2 rounded"
+                                >
+                                    <FaArrowDown />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveQuestion(question.id)}
+                                    className="text-red-500 border p-2 rounded"
+                                >
+                                    <FaTrash />
+                                </button>
+                            </div>
                         </div>
                     ))}
                     <button
