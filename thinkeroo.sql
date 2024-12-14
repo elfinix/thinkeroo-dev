@@ -55,6 +55,9 @@ CREATE TABLE user_class (
     UNIQUE(user_id, class_id)
 );
 
+ALTER TABLE thinkeroo.user_class MODIFY COLUMN status enum('active','suspended') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'active' NOT NULL;
+
+
 -- Class Post Table
 CREATE TABLE class_post (
     id INT PRIMARY KEY AUTO_INCREMENT,

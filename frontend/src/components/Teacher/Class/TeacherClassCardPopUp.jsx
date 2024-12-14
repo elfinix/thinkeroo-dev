@@ -1,12 +1,21 @@
 import React from "react";
+import axios from "axios";
+import { API_ENDPOINT } from "/constants/constants";
 
-const TeacherClassCardPopUp = ({ selectClass }) => {
+const TeacherClassCardPopUp = ({ classId, onArchive }) => {
+    const handleArchive = async (e) => {
+        e.stopPropagation(); // Prevent triggering the onClick event of the card
+        try {
+            await axios.put(`${API_ENDPOINT}/api/classes/archive_class/${classId}/`);
+            onArchive(classId); // Call the onArchive callback to update the parent component state
+        } catch (error) {
+            console.error("Failed to archive class:", error);
+        }
+    };
+
     return (
         <div className="absolute top-8 right-0 w-[163px] h-[100px] rounded-[10px] bg-primary-1 border-2 border-primary-3 flex flex-col justify-evenly p-2">
-            <button
-                onClick={() => selectClass("Selected Data Goes Here")}
-                className="w-full flex items-center gap-2 p-2 hover:bg-primary-2 rounded-md"
-            >
+            <button onClick={() => selectClass("Selected Data Goes Here")} className="w-full flex items-center gap-2 p-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path
                         fill="#F5F5F5"
@@ -15,9 +24,12 @@ const TeacherClassCardPopUp = ({ selectClass }) => {
                 </svg>
                 <p className="font-medium text-text-1">Edit Class</p>
             </button>
-            <button className="w-full flex items-center gap-2 p-2 hover:bg-primary-2 rounded-md">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#F93F3F" viewBox="0 0 24 24">
-                    <path d="M22 20V7L20 3H4L2 7.00353V20C2 20.5523 2.44772 21 3 21H21C21.5523 21 22 20.5523 22 20ZM4 9H20V19H4V9ZM5.236 5H18.764L19.764 7H4.237L5.236 5ZM15 11H9V13H15V11Z"></path>
+            <button onClick={handleArchive} className="w-full flex items-center gap-2 p-2 hover:bg-primary-2 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path
+                        fill="#F93F3F"
+                        d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3Zm1 2H6v12h12V8Zm-4.586 6 1.768 1.768-1.414 1.414L12 15.414l-1.768 1.768-1.414-1.414L10.586 14l-1.768-1.768 1.414-1.414L12 12.586l1.768-1.768 1.414 1.414L13.414 14ZM9 4v2h6V4H9Z"
+                    />
                 </svg>
                 <p className="font-medium text-negative">Archive</p>
             </button>

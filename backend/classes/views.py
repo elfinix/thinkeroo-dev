@@ -16,8 +16,8 @@ def create_class(request):
 
 @api_view(['GET'])
 def list_classes(request):
-    """List all classes."""
-    classes = Class.objects.all()
+    """List all classes that are not archived."""
+    classes = Class.objects.filter(is_archived=False)
     serializer = ClassSerializer(classes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -59,3 +59,15 @@ def delete_class(request, pk):
         return Response({"error": "Class not found"}, status=status.HTTP_404_NOT_FOUND)
     class_instance.delete()
     return Response({"message": "Class deleted successfully"}, status=status.HTTP_200_OK)
+    
+@api_view(['PUT'])
+def archive_class(request, pk):
+    """Archive a class."""
+    try:
+        class_instance = Class.objects.get(pk=pk)
+    except Class.DoesNotExist:
+        return Response({"error": "Class not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    class_instance.is_archived = True
+    class_instance.save()
+    return Response({"message": "Class archived successfully"}, status=status.HTTP_200_OK)
