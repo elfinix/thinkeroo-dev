@@ -5,17 +5,17 @@ import TeacherClassInviteStudent from "./TeacherClassInviteStudent";
 import { API_ENDPOINT } from "/constants/constants";
 import { getClassSelector } from "/src/global/globals";
 
-const TeacherClassOverviewStudentList = ({ studentList, setStudentList, totalStudents, setTotalStudents }) => {
+const TeacherClassOverviewStudentList = ({ studentList, setStudentList, setTotalStudents, classLimit }) => {
     const [invite, setInvite] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null); // State to track the selected student
     const [searchQuery, setSearchQuery] = useState(""); // State to track the search query
+
+    const selectedClassId = getClassSelector();
 
     // Filter the student list based on the search query
     const filteredStudentList = studentList.filter((student) =>
         `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
-    const selectedClassId = getClassSelector();
 
     const handleDeleteStudent = async (studentId) => {
         try {
@@ -46,7 +46,7 @@ const TeacherClassOverviewStudentList = ({ studentList, setStudentList, totalStu
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-medium text-text-1">Student List</h2>
                             <h2 className="text-xl font-medium text-text-2">
-                                {filteredStudentList.length}/{totalStudents}
+                                {filteredStudentList.length}/{classLimit}
                             </h2>
                         </div>
                         <div className="w-full h-[92%] overflow-y-auto">

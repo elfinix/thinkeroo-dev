@@ -15,12 +15,14 @@ const TeacherClassOverview = ({ selectedClass }) => {
     const [classDetails, setClassDetails] = useState(null);
     const [studentList, setStudentList] = useState([]);
     const [totalStudents, setTotalStudents] = useState(0); // State to track the total number of students
+    const [classLimit, setClassLimit] = useState(0); // State to track the class limit
 
     useEffect(() => {
         const fetchClassDetails = async () => {
             try {
                 const response = await axios.get(`${API_ENDPOINT}/api/classes/${selectedClass.id}/`);
                 setClassDetails(response.data);
+                setClassLimit(response.data.class_limit); // Set class limit
             } catch (error) {
                 console.error("Failed to fetch class details:", error);
             }
@@ -68,6 +70,7 @@ const TeacherClassOverview = ({ selectedClass }) => {
                         totalStudents={totalStudents} // Pass total students to the render component
                         setStudentList={setStudentList} // Pass setStudentList to the render component
                         setTotalStudents={setTotalStudents} // Pass setTotalStudents to the render component
+                        classLimit={classLimit} // Pass class limit to the render component
                     />
                 </>
             )}

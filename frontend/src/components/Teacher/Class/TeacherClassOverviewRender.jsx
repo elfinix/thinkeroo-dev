@@ -12,7 +12,8 @@ const TeacherClassOverviewRender = ({
     studentList,
     totalStudents,
     setStudentList,
-    setTotalStudents, // Add setTotalStudents prop
+    setTotalStudents,
+    classLimit, // Add classLimit prop
 }) => {
     let content;
 
@@ -38,7 +39,8 @@ const TeacherClassOverviewRender = ({
                     studentList={studentList}
                     totalStudents={totalStudents}
                     setStudentList={setStudentList}
-                    setTotalStudents={setTotalStudents} // Pass setTotalStudents prop
+                    setTotalStudents={setTotalStudents}
+                    classLimit={classLimit} // Pass classLimit prop
                 />
             );
             break;
