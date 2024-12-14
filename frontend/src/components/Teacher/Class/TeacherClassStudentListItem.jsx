@@ -1,8 +1,28 @@
 import React, { useState } from "react";
 import ConfirmationRemoveStudent from "./TeacherClassStudentListItemConfirmDelete";
 
+import axios from "axios";
+import { API_ENDPOINT } from "/constants/constants";
+import { getClassSelector } from "/src/global/globals";
+
 const TeacherClassStudentListItem = ({ student, onClick, onDelete }) => {
     const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
+    const [status, setStatus] = useState(student.status);
+    const classId = getClassSelector();
+
+    const updateStatus = async (newStatus) => {
+        try {
+            console.log(`Updating status for student ID: ${student.id}, class ID: ${classId} to ${newStatus}`); // Debugging log
+            const response = await axios.put(`${API_ENDPOINT}/api/user-class/${student.id}/${classId}/update_status/`, {
+                status: newStatus,
+            });
+            console.log("Response:", response.data); // Debugging log
+            setStatus(newStatus);
+            onStatusChange(student.id, newStatus);
+        } catch (error) {
+            console.error("Failed to update status:", error);
+        }
+    };
 
     const handleDeleteClick = (e) => {
         e.stopPropagation(); // Prevent triggering the onClick event of the list item

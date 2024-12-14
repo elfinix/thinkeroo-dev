@@ -19,7 +19,9 @@ const TeacherClassOverviewStudentList = ({ studentList, setStudentList, totalStu
 
     const handleDeleteStudent = async (studentId) => {
         try {
-            await axios.delete(`${API_ENDPOINT}/api/classes/${classId}/students/${studentId}/`);
+            await axios.put(`${API_ENDPOINT}/api/user-class/${studentId}/${classId}/update_status/`, {
+                status: "removed",
+            });
             setStudentList((prevList) => prevList.filter((student) => student.id !== studentId));
         } catch (error) {
             console.error("Failed to delete student:", error);

@@ -1,61 +1,88 @@
 {
-  "hash": "e8b4ef29",
+  "hash": "cbcd44dd",
   "configHash": "88e2310f",
-  "lockfileHash": "af25c2f5",
-  "browserHash": "bdcbf89e",
+  "lockfileHash": "92af547a",
+  "browserHash": "9d1f5c30",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "149c58cc",
+      "fileHash": "5601cd4b",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "e43c9fa4",
+      "fileHash": "79a089a2",
       "needsInterop": true
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.mjs",
       "file": "react-router-dom.js",
-      "fileHash": "a1b652dc",
+      "fileHash": "df48284d",
       "needsInterop": false
     },
     "styled-components": {
       "src": "../../node_modules/styled-components/dist/styled-components.browser.esm.js",
       "file": "styled-components.js",
-      "fileHash": "269ba8da",
+      "fileHash": "e4936439",
       "needsInterop": false
     },
     "axios": {
       "src": "../../node_modules/axios/index.js",
       "file": "axios.js",
-      "fileHash": "097fcaf8",
+      "fileHash": "898a8126",
       "needsInterop": false
     },
     "react-icons/fa": {
       "src": "../../node_modules/react-icons/fa/index.mjs",
       "file": "react-icons_fa.js",
-      "fileHash": "b1d1f9ed",
+      "fileHash": "dd4f2c2d",
       "needsInterop": false
     },
     "lucide-react": {
       "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
       "file": "lucide-react.js",
-      "fileHash": "93bba1b5",
+      "fileHash": "99b24a3f",
       "needsInterop": false
+    },
+    "jspdf": {
+      "src": "../../node_modules/jspdf/dist/jspdf.es.min.js",
+      "file": "jspdf.js",
+      "fileHash": "50997cb6",
+      "needsInterop": false
+    },
+    "jspdf-autotable": {
+      "src": "../../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.js",
+      "file": "jspdf-autotable.js",
+      "fileHash": "25942fe4",
+      "needsInterop": true
     }
   },
   "chunks": {
-    "chunk-UP6LQVYV": {
-      "file": "chunk-UP6LQVYV.js"
+    "html2canvas.esm-5JBGKC2T": {
+      "file": "html2canvas__esm-5JBGKC2T.js"
     },
-    "chunk-TWJRYSII": {
-      "file": "chunk-TWJRYSII.js"
+    "purify.es-PFY64W4W": {
+      "file": "purify__es-PFY64W4W.js"
     },
-    "chunk-DC5AMYBS": {
-      "file": "chunk-DC5AMYBS.js"
+    "index.es-M4WY7N7Q": {
+      "file": "index__es-M4WY7N7Q.js"
+    },
+    "chunk-CN3UFQTT": {
+      "file": "chunk-CN3UFQTT.js"
+    },
+    "chunk-EZTFGPRW": {
+      "file": "chunk-EZTFGPRW.js"
+    },
+    "chunk-JUWM2LYA": {
+      "file": "chunk-JUWM2LYA.js"
+    },
+    "chunk-W4EHDCLL": {
+      "file": "chunk-W4EHDCLL.js"
+    },
+    "chunk-EWTE5DHJ": {
+      "file": "chunk-EWTE5DHJ.js"
     }
   }
 }
