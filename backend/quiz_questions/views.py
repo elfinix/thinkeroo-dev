@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import QuizQuestion
@@ -9,11 +10,7 @@ from .serializers import QuizQuestionSerializer
 def quiz_question_list(request):
     """Handle GET (list) and POST (create) requests for quiz-questions."""
     if request.method == 'GET':
-        quiz_id = request.query_params.get('quiz_id')
-        if quiz_id:
-            quiz_questions = QuizQuestion.objects.filter(quiz_instance_id=quiz_id)
-        else:
-            quiz_questions = QuizQuestion.objects.all()
+        quiz_questions = QuizQuestion.objects.all()  # Retrieve all quiz-question records
         serializer = QuizQuestionSerializer(quiz_questions, many=True)
         return Response(serializer.data)
 
@@ -46,3 +43,19 @@ def quiz_question_detail(request, pk):
     if request.method == 'DELETE':
         quiz_question.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_quizzes(request):
+    """Retrieve all quizzes of the authenticated user."""
+    user = request.user
+    quizzes = Quiz.objects.filter(teacher_id=user.id)
+    serializer = QuizSerializer(quizzes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+def questions_by_quiz(request, quiz_id):
+    """Retrieve all questions for a specific quiz."""
+    quiz_questions = QuizQuestion.objects.filter(quiz_instance_id=quiz_id)
+    serializer = QuizQuestionSerializer(quiz_questions, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

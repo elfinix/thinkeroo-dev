@@ -61,3 +61,12 @@ def questions_by_quiz(request, quiz_id):
     questions = Question.objects.filter (quiz_instance=quiz_id)
     serializer = QuestionSerializer(questions, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_quizzes(request):
+    """Retrieve all quizzes of the authenticated user."""
+    user = request.user
+    quizzes = Quiz.objects.filter(teacher_id=user.id)
+    serializer = QuizSerializer(quizzes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

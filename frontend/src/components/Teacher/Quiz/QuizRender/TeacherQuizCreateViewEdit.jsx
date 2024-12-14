@@ -59,6 +59,20 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
         };
 
         fetchClasses();
+
+        // Fetch questions for the selected quiz
+        const fetchQuizQuestions = async () => {
+            try {
+                const response = await axios.get(`${API_ENDPOINT}/api/quiz-questions/quiz/${selectedQuiz.id}/`);
+                setQuestions(response.data);
+            } catch (error) {
+                console.error("Failed to fetch quiz questions:", error);
+            }
+        };
+
+        if (selectedQuiz) {
+            fetchQuizQuestions();
+        }
     }, [selectedQuiz]);
 
     // Centralized Validation for Duration
@@ -284,7 +298,11 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                 <div className="w-full h-full overflow-y-auto">
                     {questions.map((question, index) => (
                         <div key={question.id} className="mb-4 border-2 border-primary-3 rounded-[10px] p-4 relative">
-                            <QuestionComponent index={index} />
+                            <QuestionComponent
+                                index={index}
+                                question={question}
+                                handleRemoveQuestion={handleRemoveQuestion}
+                            />
                             <button
                                 type="button"
                                 onClick={() => handleRemoveQuestion(question.id)}
@@ -309,7 +327,7 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                         className="w-full h-[75px] bg-transparent text-white border-dashed border-2 border-primary-3 rounded-[10px] flex items-center justify-center"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path fill="#F5F5F5" d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z" />
+                            <path fill="#F5F5F5" d="M11 11V5h2v6h6v2h-6v6H6V8H0V6h6Z" />
                         </svg>
                         Add Question
                     </button>
