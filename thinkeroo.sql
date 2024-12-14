@@ -89,6 +89,9 @@ CREATE TABLE quiz (
     CONSTRAINT fk_quiz_class FOREIGN KEY (class_id) REFERENCES class(id)
 );
 
+ALTER TABLE quiz
+    ADD COLUMN shows_results BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- Question Table
 CREATE TABLE question (
     id INT PRIMARY KEY AUTO_INCREMENT,

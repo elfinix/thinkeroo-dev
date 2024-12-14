@@ -7,29 +7,40 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
     const [questions, setQuestions] = useState([]);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [duration, setDuration] = useState("");
+    const [hours, setHours] = useState("00");
+    const [minutes, setMinutes] = useState("00");
+    const [seconds, setSeconds] = useState("00");
     const [schedule, setSchedule] = useState("");
     const [classId, setClassId] = useState("");
     const [classes, setClasses] = useState([]);
-    const [showScore, setShowScore] = useState(false);
+    const [showScore, setShowScore] = useState(false); // Manages 'shows_results'
+    const [isDurationValid, setIsDurationValid] = useState(true);
 
     useEffect(() => {
         if (selectedQuiz) {
             setTitle(selectedQuiz.title);
             setDescription(selectedQuiz.description);
-            // Convert duration from minutes to "MM:SS" format
+            // Convert duration from total minutes to "HH:MM:SS" format
             if (!isNaN(selectedQuiz.duration)) {
-                const minutes = Math.floor(selectedQuiz.duration / 60)
+                const totalSeconds = selectedQuiz.duration * 60; // Convert minutes to seconds
+                const hours = Math.floor(totalSeconds / 3600)
                     .toString()
                     .padStart(2, "0");
-                const seconds = (selectedQuiz.duration % 60).toString().padStart(2, "0");
-                setDuration(`${minutes}:${seconds}`);
+                const minutes = Math.floor((totalSeconds % 3600) / 60)
+                    .toString()
+                    .padStart(2, "0");
+                const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+                setHours(hours);
+                setMinutes(minutes);
+                setSeconds(seconds);
             } else {
-                setDuration("00:00");
+                setHours("00");
+                setMinutes("00");
+                setSeconds("00");
             }
             setSchedule(new Date(selectedQuiz.schedule).toISOString().split("T")[0]);
             setClassId(selectedQuiz.class_instance.id); // Assuming class_instance includes id
-            setShowScore(selectedQuiz.show_score || false); // Adjust based on your data
+            setShowScore(selectedQuiz.shows_results || false); // Updated to map 'shows_results'
         }
 
         // Fetch classes
@@ -50,6 +61,14 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
         fetchClasses();
     }, [selectedQuiz]);
 
+    // Centralized Validation for Duration
+    useEffect(() => {
+        const hoursValid = /^([0-1]\d|2[0-3])$/.test(hours);
+        const minutesValid = /^([0-5]\d)$/.test(minutes);
+        const secondsValid = /^([0-5]\d)$/.test(seconds);
+        setIsDurationValid(hoursValid && minutesValid && secondsValid);
+    }, [hours, minutes, seconds]);
+
     // Add a new question
     const handleAddQuestion = () => {
         setQuestions([...questions, { id: Date.now(), type: "True or False", question: "", choices: [] }]);
@@ -63,31 +82,34 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
     // Handle input changes
     const handleTitleChange = (e) => setTitle(e.target.value);
     const handleDescriptionChange = (e) => setDescription(e.target.value);
-    const handleDurationChange = (e) => setDuration(e.target.value);
     const handleScheduleChange = (e) => setSchedule(e.target.value);
     const handleClassChange = (e) => setClassId(e.target.value);
     const handleShowScoreChange = (e) => setShowScore(e.target.checked);
 
+    // Helper function to get class name based on classId
+    const getSelectedClassName = () => {
+        const selectedClass = classes.find((cls) => cls.id === classId);
+        return selectedClass ? selectedClass.name : "Select Class";
+    };
+
     // Handle Save Quiz
     const handleSaveQuiz = async () => {
-        // Validate duration before proceeding
-        const regex = /^([0-5]\d):([0-5]\d)$/;
-        if (!regex.test(duration)) {
-            alert("Please enter a valid duration in MM:SS format.");
+        // Check if duration is valid
+        if (!isDurationValid) {
+            alert("Please enter a valid duration in HH:MM:SS format.");
             return;
         }
 
-        // Convert "MM:SS" back to total minutes
-        const [minutes, seconds] = duration.split(":").map(Number);
-        const totalMinutes = minutes + seconds / 60;
+        // Convert "HH:MM:SS" to total minutes
+        const totalMinutes = parseInt(hours || "0") * 60 + parseInt(minutes || "0") + parseInt(seconds || "0") / 60;
 
         const quizData = {
             title,
             description,
-            duration: totalMinutes, // Depending on backend expects total minutes or something else
+            duration: totalMinutes, // Backend expects duration in minutes
             schedule,
             class_id: classId,
-            show_score: showScore,
+            shows_results: showScore, // Maps 'showScore' to 'shows_results'
             questions,
         };
 
@@ -98,13 +120,12 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                     Authorization: `Token ${token}`,
                 },
             });
-            // Handle successful save (e.g., navigate back or show a success message)
+            // Handle successful save
             alert("Quiz saved successfully!");
-            unselectQuiz(); // Navigate back or reset the form
+            unselectQuiz();
         } catch (error) {
             console.error("Failed to save quiz:", error);
             alert("Failed to save quiz. Please try again.");
-            // Handle error (e.g., show an error message)
         }
     };
 
@@ -159,20 +180,65 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                         />
                     </label>
                     <label className="flex flex-col w-full gap-2">
-                        <p className="text-text-2">Timer (MM:SS)</p>
-                        <input
-                            type="text"
-                            value={duration}
-                            onChange={(e) => {
-                                const regex = /^([0-5]?\d)?(?::([0-5]?\d)?)?$/;
-                                if (regex.test(e.target.value)) {
-                                    handleDurationChange(e);
-                                }
-                            }}
-                            placeholder="MM:SS"
-                            maxLength="5"
-                            className="h-[57px] px-3 text-text-1 placeholder:text-text-2 rounded-[10px] border-2 border-primary-3 bg-transparent"
-                        />
+                        <p className="text-text-2">Timer</p>
+                        <div className="flex items-center gap-2">
+                            {/* Hours Input */}
+                            <input
+                                type="text"
+                                value={hours}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    const regex = /^([0-1]?\d|2[0-3]?)$/;
+                                    if (regex.test(value) || value === "") {
+                                        setHours(value);
+                                    }
+                                }}
+                                placeholder="HH"
+                                maxLength="2"
+                                className={`w-16 h-[57px] px-3 text-text-1 placeholder:text-text-2 rounded-[10px] border-2 ${
+                                    isDurationValid ? "border-primary-3" : "border-red-500"
+                                } bg-transparent`}
+                            />
+                            <span className="text-text-2">:</span>
+                            {/* Minutes Input */}
+                            <input
+                                type="text"
+                                value={minutes}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    const regex = /^([0-5]?\d)$/;
+                                    if (regex.test(value) || value === "") {
+                                        setMinutes(value);
+                                    }
+                                }}
+                                placeholder="MM"
+                                maxLength="2"
+                                className={`w-16 h-[57px] px-3 text-text-1 placeholder:text-text-2 rounded-[10px] border-2 ${
+                                    isDurationValid ? "border-primary-3" : "border-red-500"
+                                } bg-transparent`}
+                            />
+                            <span className="text-text-2">:</span>
+                            {/* Seconds Input */}
+                            <input
+                                type="text"
+                                value={seconds}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    const regex = /^([0-5]?\d)$/;
+                                    if (regex.test(value) || value === "") {
+                                        setSeconds(value);
+                                    }
+                                }}
+                                placeholder="SS"
+                                maxLength="2"
+                                className={`w-16 h-[57px] px-3 text-text-1 placeholder:text-text-2 rounded-[10px] border-2 ${
+                                    isDurationValid ? "border-primary-3" : "border-red-500"
+                                } bg-transparent`}
+                            />
+                        </div>
+                        {!isDurationValid && (
+                            <p className="text-red-500 text-sm mt-1">Invalid time format. Please use HH:MM:SS.</p>
+                        )}
                     </label>
                     <label className="flex flex-col w-full gap-2">
                         <p className="text-text-2">Schedule</p>

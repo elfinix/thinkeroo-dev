@@ -9,7 +9,11 @@ from .serializers import QuizQuestionSerializer
 def quiz_question_list(request):
     """Handle GET (list) and POST (create) requests for quiz-questions."""
     if request.method == 'GET':
-        quiz_questions = QuizQuestion.objects.all()  # Retrieve all quiz-question records
+        quiz_id = request.query_params.get('quiz_id')
+        if quiz_id:
+            quiz_questions = QuizQuestion.objects.filter(quiz_instance_id=quiz_id)
+        else:
+            quiz_questions = QuizQuestion.objects.all()
         serializer = QuizQuestionSerializer(quiz_questions, many=True)
         return Response(serializer.data)
 

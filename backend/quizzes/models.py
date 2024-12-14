@@ -14,6 +14,7 @@ class Quiz(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)  # Soft delete field
+    shows_results = models.BooleanField(default=False)  # Whether to show results immediately after quiz ends
 
     class Meta:
         db_table = 'quiz'
