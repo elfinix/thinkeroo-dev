@@ -74,6 +74,7 @@ CREATE TABLE class_post (
 -- Quiz Table
 CREATE TABLE quiz (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    teacher_id INT NOT NULL,
     class_id INT NOT NULL,
     title VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
@@ -84,6 +85,7 @@ CREATE TABLE quiz (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
+    CONSTRAINT fk_quiz_teacher FOREIGN KEY (teacher_id) REFERENCES user(id),
     CONSTRAINT fk_quiz_class FOREIGN KEY (class_id) REFERENCES class(id)
 );
 
