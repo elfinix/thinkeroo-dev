@@ -5,7 +5,7 @@ import TeacherClassInviteStudent from "./TeacherClassInviteStudent";
 import { API_ENDPOINT } from "/constants/constants";
 import { getClassSelector } from "/src/global/globals";
 
-const TeacherClassOverviewStudentList = ({ studentList, setStudentList, totalStudents }) => {
+const TeacherClassOverviewStudentList = ({ studentList, setStudentList, totalStudents, setTotalStudents }) => {
     const [invite, setInvite] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null); // State to track the selected student
     const [searchQuery, setSearchQuery] = useState(""); // State to track the search query
@@ -15,14 +15,15 @@ const TeacherClassOverviewStudentList = ({ studentList, setStudentList, totalStu
         `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const classId = getClassSelector();
+    const selectedClassId = getClassSelector();
 
     const handleDeleteStudent = async (studentId) => {
         try {
-            await axios.put(`${API_ENDPOINT}/api/user-class/${studentId}/${classId}/update_status/`, {
+            await axios.put(`${API_ENDPOINT}/api/user-class/${studentId}/${selectedClassId}/update_status/`, {
                 status: "removed",
             });
             setStudentList((prevList) => prevList.filter((student) => student.id !== studentId));
+            setTotalStudents((prevTotal) => prevTotal - 1); // Update total students count
         } catch (error) {
             console.error("Failed to delete student:", error);
         }
@@ -55,6 +56,7 @@ const TeacherClassOverviewStudentList = ({ studentList, setStudentList, totalStu
                                     student={student}
                                     onClick={() => setSelectedStudent(student)} // Handle click event
                                     onDelete={handleDeleteStudent} // Handle delete event
+                                    selectedClassId={selectedClassId}
                                 />
                             ))}
                         </div>

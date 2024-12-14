@@ -67,6 +67,7 @@ const TeacherClassOverview = ({ selectedClass }) => {
                         studentList={studentList} // Pass student list to the render component
                         totalStudents={totalStudents} // Pass total students to the render component
                         setStudentList={setStudentList} // Pass setStudentList to the render component
+                        setTotalStudents={setTotalStudents} // Pass setTotalStudents to the render component
                     />
                 </>
             )}

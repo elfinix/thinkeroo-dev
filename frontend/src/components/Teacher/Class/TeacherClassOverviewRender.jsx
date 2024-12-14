@@ -12,6 +12,7 @@ const TeacherClassOverviewRender = ({
     studentList,
     totalStudents,
     setStudentList,
+    setTotalStudents, // Add setTotalStudents prop
 }) => {
     let content;
 
@@ -37,6 +38,7 @@ const TeacherClassOverviewRender = ({
                     studentList={studentList}
                     totalStudents={totalStudents}
                     setStudentList={setStudentList}
+                    setTotalStudents={setTotalStudents} // Pass setTotalStudents prop
                 />
             );
             break;
