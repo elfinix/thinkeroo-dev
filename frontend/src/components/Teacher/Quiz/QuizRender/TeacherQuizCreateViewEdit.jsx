@@ -143,9 +143,9 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
             description,
             duration: totalMinutes,
             schedule,
-            class_instance: classId, // Ensure this matches the backend field name
+            class_instance: classId,
             shows_results: showScore,
-            teacher_id: selectedQuiz ? selectedQuiz.teacher_id : null, // Include teacher_id if available
+            teacher_id: selectedQuiz ? selectedQuiz.teacher_id : null,
             questions: questions.map((question) => ({
                 id: question.id,
                 type: question.type,
@@ -155,11 +155,11 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                     content: option.content,
                     is_correct: option.is_correct,
                 })),
-                answer: question.answer, // Include the answer field
+                answer: question.answer,
             })),
         };
 
-        // console.log(JSON.stringify(quizData, null, 2)); // Log the data being sent as JSON
+        // console.log(JSON.stringify(quizData, null, 2)); // Log the data being sent
 
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -180,36 +180,68 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
 
             const savedQuiz = response.data;
 
-            // Save quiz questions
+            // Save quiz questions and options
             for (const question of questions) {
                 const questionData = {
-                    quiz_instance: savedQuiz.id, // Ensure quiz_instance is included
-                    content: question.content, // Ensure content is included
+                    quiz_instance: savedQuiz.id,
+                    content: question.content,
                     type: question.type,
-                    options: question.options.map((option) => ({
-                        content: option.content,
-                        is_correct: option.is_correct,
-                    })),
-                    answer: question.answer, // Ensure answer is included
+                    answer: question.answer,
                 };
-                console.log(JSON.stringify(questionData, null, 2)); // Log the question data being sent as JSON
 
+                // console.log(JSON.stringify(questionData, null, 2)); // Log the data being sent
+
+                let questionResponse;
                 try {
                     if (question.id) {
-                        await axios.put(`${API_ENDPOINT}/api/questions/${question.id}/`, questionData, {
+                        questionResponse = await axios.put(`${API_ENDPOINT}/api/questions/${question.id}/`, questionData, {
                             headers: {
                                 Authorization: `Token ${token}`,
                             },
                         });
                     } else {
-                        await axios.post(`${API_ENDPOINT}/api/questions/`, questionData, {
+                        questionResponse = await axios.post(`${API_ENDPOINT}/api/questions/`, questionData, {
                             headers: {
                                 Authorization: `Token ${token}`,
                             },
                         });
                     }
+                    console.log("Saved Question:", questionResponse.data); // Log the saved question
                 } catch (error) {
                     console.error(`Failed to save question with id ${question.id}:`, error);
+                    continue; // Skip to the next question if there's an error
+                }
+
+                const savedQuestion = questionResponse.data;
+
+                // Save options
+                for (const option of question.options) {
+                    const optionData = {
+                        question_instance: savedQuestion.id,
+                        content: option.content,
+                        is_correct: option.is_correct,
+                    };
+
+                    console.log(JSON.stringify(optionData, null, 2)); // Log the data being sent
+
+                    try {
+                        if (option.id) {
+                            await axios.put(`${API_ENDPOINT}/api/options/${option.id}/`, optionData, {
+                                headers: {
+                                    Authorization: `Token ${token}`,
+                                },
+                            });
+                        } else {
+                            await axios.post(`${API_ENDPOINT}/api/options/`, optionData, {
+                                headers: {
+                                    Authorization: `Token ${token}`,
+                                },
+                            });
+                        }
+                        console.log("Saved Option:", optionData); // Log the saved option
+                    } catch (error) {
+                        console.error(`Failed to save option with id ${option.id}:`, error);
+                    }
                 }
             }
 
