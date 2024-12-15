@@ -90,7 +90,7 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion }) => {
                             value={correctAnswer || ""}
                             onChange={(e) => setCorrectAnswer(e.target.value)}
                             placeholder="Enter the answer"
-                            className="border-2 border-primary-3 text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px]"
+                            className="border-2 border-secondary-2 outline-none text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px]"
                         />
                     </div>
                 );
@@ -127,8 +127,9 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion }) => {
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveChoice(idx)}
-                                        className="bg-transparent border-none mr-1"
+                                        className="bg-red border-none mr-1"
                                     >
+                                        Remove
                                         {/* <svg */}
                                     </button>
                                 </div>
