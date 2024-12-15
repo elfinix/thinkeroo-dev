@@ -23,9 +23,12 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion }) => {
         if (question.options) {
             setChoices(question.options.map((option) => option.content));
             const correctOption = question.options.find((option) => option.is_correct);
-            setCorrectAnswer(correctOption ? question.options.indexOf(correctOption) : null);
+            setCorrectAnswer(correctOption ? correctOption.content : null);
         }
-    }, [question]);
+        if (questionType === "Identification") {
+            setCorrectAnswer(question.answer || ""); // Set the answer field for IDN
+        }
+    }, [question, questionType]);
 
     const handleAddChoice = () => {
         setChoices([...choices, ""]);
@@ -87,10 +90,10 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion }) => {
                         <p className="mt-2">Answer</p>
                         <input
                             type="text"
-                            value={correctAnswer || ""}
+                            value={correctAnswer}
                             onChange={(e) => setCorrectAnswer(e.target.value)}
                             placeholder="Enter the answer"
-                            className="border-2 border-secondary-2 outline-none text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px]"
+                            className="border-2 border-secondary-1 outline-none text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px]"
                         />
                     </div>
                 );
@@ -127,10 +130,9 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion }) => {
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveChoice(idx)}
-                                        className="bg-red border-none mr-1"
+                                        className="bg-transparent border-none mr-1"
                                     >
                                         Remove
-                                        {/* <svg */}
                                     </button>
                                 </div>
                             ))}

@@ -28,7 +28,11 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                     content: option.content,
                     is_correct: option.is_correct,
                 })),
-                correctAnswer: qq.question_instance.options.find((option) => option.is_correct)?.content || null,
+                correctAnswer:
+                    qq.question_instance.type === "IDN"
+                        ? qq.question_instance.answer
+                        : qq.question_instance.options.find((option) => option.is_correct)?.content || null,
+                answer: qq.question_instance.answer || "", // Ensure 'answer' is included
             }));
             setQuestions(quizQuestions);
         } catch (error) {
@@ -52,7 +56,7 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
             setMinutes(minutes);
             setSeconds(seconds);
             setSchedule(new Date(selectedQuiz.schedule).toISOString().split("T")[0]);
-            setClassId(selectedQuiz.class_instance.id);
+            setClassId(selectedQuiz.class_instance.id); // Initialize classId state
             setShowScore(selectedQuiz.shows_results || false);
             fetchQuizQuestions();
         }
@@ -109,7 +113,7 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
     const handleTitleChange = (e) => setTitle(e.target.value);
     const handleDescriptionChange = (e) => setDescription(e.target.value);
     const handleScheduleChange = (e) => setSchedule(e.target.value);
-    const handleClassChange = (e) => setClassId(e.target.value);
+    const handleClassChange = (e) => setClassId(e.target.value); // Ensure classId is set correctly
     const handleShowScoreChange = (e) => setShowScore(e.target.checked);
 
     const getSelectedClassName = () => {
@@ -132,7 +136,18 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
             schedule,
             class_instance: classId, // Ensure this matches the backend field name
             shows_results: showScore,
-            questions,
+            teacher_id: selectedQuiz ? selectedQuiz.teacher_id : null, // Include teacher_id if available
+            questions: questions.map((question) => ({
+                id: question.id,
+                type: question.type,
+                content: question.content,
+                options: question.options.map((option) => ({
+                    id: option.id, // Ensure option ID is included
+                    content: option.content,
+                    is_correct: option.is_correct,
+                })),
+                answer: question.answer, // Include the answer field
+            })),
         };
 
         console.log("Quiz Data:", quizData); // Log the data being sent
@@ -163,9 +178,11 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                     content: question.content,
                     type: question.type,
                     options: question.options.map((option) => ({
+                        id: option.id, // Ensure option ID is included
                         content: option.content,
                         is_correct: option.is_correct,
                     })),
+                    answer: question.answer, // Include the answer field
                 };
 
                 if (question.id) {
@@ -298,10 +315,10 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                             className="h-[57px] text-text-1 px-3 rounded-[10px] border-2 border-primary-3 bg-transparent"
                         >
                             <option className="text-black" value="">
-                                {selectedQuiz.class_name}
+                                {getSelectedClassName()}
                             </option>
                             {classes
-                                .filter((cls) => cls.name !== selectedQuiz.class_name)
+                                .filter((cls) => !selectedQuiz || cls.id !== selectedQuiz.class_instance.id)
                                 .map((cls) => (
                                     <option key={cls.id} className="text-black" value={cls.id}>
                                         {cls.name}

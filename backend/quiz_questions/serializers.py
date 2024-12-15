@@ -17,22 +17,30 @@ class OptionSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True)
+    answer = serializers.CharField(required=False, allow_blank=True)  # Add the answer field
 
     class Meta:
         model = Question
-        fields = ['id', 'quiz_instance', 'content', 'type', 'options']
+        fields = ['id', 'quiz_instance', 'content', 'type', 'options', 'answer']  # Include 'answer'
 
     def create(self, validated_data):
         options_data = validated_data.pop('options')
+        answer = validated_data.pop('answer', None)
         question = Question.objects.create(**validated_data)
+        if answer:
+            question.answer = answer
+            question.save()
         for option_data in options_data:
             Option.objects.create(question_instance=question, **option_data)
         return question
 
     def update(self, instance, validated_data):
-        options_data = validated_data.pop('options')
+        options_data = validated_data.pop('options', [])
+        answer = validated_data.pop('answer', None)
         instance.content = validated_data.get('content', instance.content)
         instance.type = validated_data.get('type', instance.type)
+        if answer is not None:
+            instance.answer = answer
         instance.save()
 
         # Update options
