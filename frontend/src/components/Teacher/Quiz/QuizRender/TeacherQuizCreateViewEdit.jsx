@@ -116,6 +116,15 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
     const handleClassChange = (e) => setClassId(e.target.value); // Ensure classId is set correctly
     const handleShowScoreChange = (e) => setShowScore(e.target.checked);
 
+    const handleUpdateQuestion = (index, updatedQuestion) => {
+        const newQuestions = [...questions];
+        newQuestions[index] = {
+            ...newQuestions[index],
+            ...updatedQuestion,
+        };
+        setQuestions(newQuestions);
+    };
+
     const getSelectedClassName = () => {
         const selectedClass = classes.find((cls) => cls.id === classId);
         return selectedClass ? selectedClass.name : "Select Class";
@@ -150,7 +159,7 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
             })),
         };
 
-        console.log("Quiz Data:", quizData); // Log the data being sent
+        // console.log(JSON.stringify(quizData, null, 2)); // Log the data being sent as JSON
 
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -174,34 +183,37 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
             // Save quiz questions
             for (const question of questions) {
                 const questionData = {
-                    quiz_instance: savedQuiz.id,
-                    content: question.content,
+                    quiz_instance: savedQuiz.id, // Ensure quiz_instance is included
+                    content: question.content, // Ensure content is included
                     type: question.type,
                     options: question.options.map((option) => ({
-                        id: option.id, // Ensure option ID is included
                         content: option.content,
                         is_correct: option.is_correct,
                     })),
-                    answer: question.answer, // Include the answer field
+                    answer: question.answer, // Ensure answer is included
                 };
+                console.log(JSON.stringify(questionData, null, 2)); // Log the question data being sent as JSON
 
-                if (question.id) {
-                    await axios.put(`${API_ENDPOINT}/api/questions/${question.id}/`, questionData, {
-                        headers: {
-                            Authorization: `Token ${token}`,
-                        },
-                    });
-                } else {
-                    await axios.post(`${API_ENDPOINT}/api/questions/`, questionData, {
-                        headers: {
-                            Authorization: `Token ${token}`,
-                        },
-                    });
+                try {
+                    if (question.id) {
+                        await axios.put(`${API_ENDPOINT}/api/questions/${question.id}/`, questionData, {
+                            headers: {
+                                Authorization: `Token ${token}`,
+                            },
+                        });
+                    } else {
+                        await axios.post(`${API_ENDPOINT}/api/questions/`, questionData, {
+                            headers: {
+                                Authorization: `Token ${token}`,
+                            },
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Failed to save question with id ${question.id}:`, error);
                 }
             }
 
             alert("Quiz saved successfully!");
-            unselectQuiz();
         } catch (error) {
             console.error("Failed to save quiz:", error);
             alert("Failed to save quiz. Please try again.");
@@ -312,18 +324,18 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                         <select
                             value={classId}
                             onChange={handleClassChange}
-                            className="h-[57px] text-text-1 px-3 rounded-[10px] border-2 border-primary-3 bg-transparent"
+                            className={`h-[57px] text-text-1 px-3 rounded-[10px] border-2 ${
+                                classId ? "border-primary-3" : "border-red-500"
+                            } bg-transparent`}
                         >
-                            <option className="text-black" value="">
-                                {getSelectedClassName()}
+                            <option value="" className="text-black">
+                                Select Class
                             </option>
-                            {classes
-                                .filter((cls) => !selectedQuiz || cls.id !== selectedQuiz.class_instance.id)
-                                .map((cls) => (
-                                    <option key={cls.id} className="text-black" value={cls.id}>
-                                        {cls.name}
-                                    </option>
-                                ))}
+                            {classes.map((cls) => (
+                                <option key={cls.id} className="text-black" value={cls.id}>
+                                    {cls.name}
+                                </option>
+                            ))}
                         </select>
                     </label>
                     <label className="flex justify-between items-center mt-4">
@@ -344,6 +356,7 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                                 index={index}
                                 question={question}
                                 handleRemoveQuestion={handleRemoveQuestion}
+                                handleUpdateQuestion={handleUpdateQuestion} // Pass the callback
                             />
                             <div className="absolute top-0 right-0 m-6 flex gap-2">
                                 <button

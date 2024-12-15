@@ -3,13 +3,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from quizzes.models import Quiz
-from quizzes.serializers import QuizSerializer
+from .models import Quiz
+from .serializers import QuizSerializer
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def quiz_list(request):
-    """Handle GET (list) and POST (create) requests for quizzes."""
     if request.method == 'GET':
         teacher_id = request.user.id
         quizzes = Quiz.objects.filter(teacher_id=teacher_id, status='active')  # Filter only active quizzes by teacher
@@ -25,7 +24,6 @@ def quiz_list(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def quiz_detail(request, pk):
-    """Handle GET, PUT, and DELETE requests for a specific quiz."""
     try:
         quiz = Quiz.objects.get(pk=pk)
     except Quiz.DoesNotExist:
