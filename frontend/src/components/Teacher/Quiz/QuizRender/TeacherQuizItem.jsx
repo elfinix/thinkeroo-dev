@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TeacherQuizCardPopUp from "./TeacherQuizCardPopUp";
 
-const TeacherQuizItem = ({ quiz, selectQuiz }) => {
+const TeacherQuizItem = ({ quiz, selectQuiz, onDelete }) => {
     const [showPopUp, setShowPopUp] = useState(false);
     return (
         <div className="w-[455px] h-[275px] flex flex-col justify-between border-2 border-primary-3 rounded-[10px] p-4">
@@ -20,7 +20,7 @@ const TeacherQuizItem = ({ quiz, selectQuiz }) => {
                         />
                     </svg>
                 </button>
-                {showPopUp && <TeacherQuizCardPopUp selectQuiz={selectQuiz} />}
+                {showPopUp && <TeacherQuizCardPopUp quiz={quiz} selectQuiz={selectQuiz} onDelete={onDelete} />}
             </div>
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">

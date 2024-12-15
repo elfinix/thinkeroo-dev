@@ -109,6 +109,9 @@ CREATE TABLE question (
     CONSTRAINT fk_question_quiz FOREIGN KEY (quiz_id) REFERENCES quiz(id)
 );
 
+ALTER TABLE question
+    ADD COLUMN shows_results BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- Option Table (for multiple choice questions)
 -- CREATE TABLE option (
 --     id INT PRIMARY KEY AUTO_INCREMENT,

@@ -87,12 +87,13 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
     const handleAddQuestion = () => {
         const newQuestion = {
             id: `new-${Date.now()}`, // Use a unique identifier for new questions
-            type: "True or False",
+            type: "", // Use the standardized type code
             content: "",
             choice1: "",
             choice2: "",
             choice3: "",
             choice4: "",
+            answer: "", // Initialize answer
         };
         setQuestions([...questions, newQuestion]);
     };
@@ -189,14 +190,15 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
 
             // Save quiz questions
             for (const question of questions) {
+                console.log("RAW QUESTION: ", question);
                 const questionData = {
                     quiz_instance: savedQuiz.id,
                     content: question.content,
                     type: question.type,
-                    choice1: question.choice1 || "",
-                    choice2: question.choice2 || "",
-                    choice3: question.choice3 || "",
-                    choice4: question.choice4 || "",
+                    choice1: question.type === "TF" ? "True" : question.choice1 || "",
+                    choice2: question.type === "TF" ? "False" : question.choice2 || "",
+                    choice3: question.type === "TF" ? "" : question.choice3 || "",
+                    choice4: question.type === "TF" ? "" : question.choice4 || "",
                     answer: question.answer,
                 };
 

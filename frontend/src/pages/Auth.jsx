@@ -37,6 +37,7 @@ const Auth = () => {
         setError("");
         try {
             const response = await axios.post(`${API_ENDPOINT}/api/users/login/`, formData);
+            // console.log(JSON.stringify(formData)); // Debugging: Log the form data
             console.log("API Response:", response); // Debugging: Log the API response
             if (response.status === 200) {
                 const { token, role } = response.data;

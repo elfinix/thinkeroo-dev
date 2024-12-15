@@ -37,9 +37,13 @@ const TeacherQuiz = () => {
         setSelectedQuiz(null);
     };
 
+    const handleDelete = (quizId) => {
+        setQuizzes(quizzes.filter((quiz) => quiz.id !== quizId));
+    };
+
     return (
         <div className="w-full h-full flex flex-col items-center">
-            {!showSelected && <TeacherQuizList selectQuiz={selectQuiz} quizzes={quizzes} />}
+            {!showSelected && <TeacherQuizList selectQuiz={selectQuiz} quizzes={quizzes} onDelete={handleDelete} />}
             {showSelected && <TeacherQuizCreateViewEdit selectedQuiz={selectedQuiz} unselectQuiz={unselectQuiz} />}
         </div>
     );

@@ -4,7 +4,8 @@ from .models import Question
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ['id', 'quiz_instance', 'content', 'answer', 'type', 'choice1', 'choice2', 'choice3', 'choice4']
+        fields = '__all__'
+        read_only_fields = ['id', 'created_at', 'updated_at']
         extra_kwargs = {
             'choice1': {'required': False, 'allow_null': True, 'allow_blank': True},
             'choice2': {'required': False, 'allow_null': True, 'allow_blank': True},

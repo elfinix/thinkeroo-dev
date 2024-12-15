@@ -1,10 +1,42 @@
 import React from "react";
+import axios from "axios";
+import { API_ENDPOINT } from "/constants/constants";
 
-const TeacherQuizCardPopUp = ({ selectQuiz }) => {
+const TeacherQuizCardPopUp = ({ quiz, selectQuiz, onDelete }) => {
+    const handleDeleteQuiz = async () => {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        try {
+            await axios.put(
+                `${API_ENDPOINT}/api/quizzes/${quiz.id}/`,
+                {
+                    title: quiz.title,
+                    description: quiz.description,
+                    duration: quiz.duration,
+                    schedule: quiz.schedule,
+                    teacher_id: quiz.teacher_id,
+                    class_instance: quiz.class_instance,
+                    status: "deleted",
+                    deleted_at: new Date().toISOString(),
+                    shows_results: quiz.shows_results,
+                },
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+            alert("Quiz deleted successfully!");
+            onDelete(quiz.id); // Call the onDelete function passed from the parent component
+        } catch (error) {
+            console.error("Failed to delete quiz:", error);
+            alert("Failed to delete quiz. Please try again.");
+        }
+    };
+
     return (
         <div className="absolute top-8 right-0 w-[163px] h-[100px] rounded-[10px] bg-primary-1 border-2 border-primary-3 flex flex-col justify-evenly p-2">
             <button
-                onClick={() => selectQuiz("Selected Data Goes Here")}
+                onClick={() => selectQuiz(quiz)}
                 className="w-full flex items-center gap-2 p-2 hover:bg-primary-2 rounded-md"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -15,7 +47,7 @@ const TeacherQuizCardPopUp = ({ selectQuiz }) => {
                 </svg>
                 <p className="font-medium text-text-1">Edit Quiz</p>
             </button>
-            <button className="w-full flex items-center gap-2 p-2 hover:bg-primary-2 rounded-md">
+            <button onClick={handleDeleteQuiz} className="w-full flex items-center gap-2 p-2 hover:bg-primary-2 rounded-md">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path
                         fill="#F93F3F"
