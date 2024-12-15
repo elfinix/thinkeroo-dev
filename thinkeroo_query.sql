@@ -58,8 +58,9 @@ JOIN quiz z ON uc.class_id = z.class_id
 WHERE uc.id = 1
 
 -- dont
--- SET FOREIGN_KEY_CHECKS = 0
-DROP TABLE quiz
+USE thinkeroo
+SET FOREIGN_KEY_CHECKS = 0
+DROP TABLE question
 SET FOREIGN_KEY_CHECKS = 1
 
 -- INSERTIONS

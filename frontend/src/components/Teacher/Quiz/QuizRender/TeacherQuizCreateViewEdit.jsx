@@ -21,18 +21,15 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
         try {
             const response = await axios.get(`${API_ENDPOINT}/api/quiz-questions/quiz/${selectedQuiz.id}/`);
             const quizQuestions = response.data.map((qq) => ({
-                id: qq.question_instance.id,
-                type: qq.question_instance.type,
-                content: qq.question_instance.content,
-                options: qq.question_instance.options.map((option) => ({
-                    content: option.content,
-                    is_correct: option.is_correct,
-                })),
-                correctAnswer:
-                    qq.question_instance.type === "IDN"
-                        ? qq.question_instance.answer
-                        : qq.question_instance.options.find((option) => option.is_correct)?.content || null,
-                answer: qq.question_instance.answer || "", // Ensure 'answer' is included
+                id: qq.question_instance, // Primary key ID for reference
+                type: qq.question.type,
+                content: qq.question.content,
+                choice1: qq.question.choice1,
+                choice2: qq.question.choice2,
+                choice3: qq.question.choice3,
+                choice4: qq.question.choice4,
+                answer: qq.question.answer || "",
+                quiz_question_id: qq.id, // Reference to QuizQuestion entry
             }));
             setQuestions(quizQuestions);
         } catch (error) {
@@ -88,11 +85,32 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
     }, [hours, minutes, seconds]);
 
     const handleAddQuestion = () => {
-        const newQuestion = { id: Date.now(), type: "True or False", content: "", choices: [] };
+        const newQuestion = {
+            id: `new-${Date.now()}`, // Use a unique identifier for new questions
+            type: "True or False",
+            content: "",
+            choice1: "",
+            choice2: "",
+            choice3: "",
+            choice4: "",
+        };
         setQuestions([...questions, newQuestion]);
     };
 
-    const handleRemoveQuestion = (id) => {
+    const handleRemoveQuestion = async (id) => {
+        const questionToRemove = questions.find((question) => question.id === id);
+        if (questionToRemove && questionToRemove.quiz_question_id) {
+            try {
+                const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                await axios.delete(`${API_ENDPOINT}/api/quiz-questions/${questionToRemove.quiz_question_id}/`, {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                });
+            } catch (error) {
+                console.error("Failed to delete quiz question:", error);
+            }
+        }
         setQuestions(questions.filter((question) => question.id !== id));
     };
 
@@ -146,20 +164,9 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
             class_instance: classId,
             shows_results: showScore,
             teacher_id: selectedQuiz ? selectedQuiz.teacher_id : null,
-            questions: questions.map((question) => ({
-                id: question.id,
-                type: question.type,
-                content: question.content,
-                options: question.options.map((option) => ({
-                    id: option.id, // Ensure option ID is included
-                    content: option.content,
-                    is_correct: option.is_correct,
-                })),
-                answer: question.answer,
-            })),
         };
 
-        // console.log(JSON.stringify(quizData, null, 2)); // Log the data being sent
+        console.log("Quiz Data:", JSON.stringify(quizData, null, 2)); // Log the data being sent
 
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -180,72 +187,64 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
 
             const savedQuiz = response.data;
 
-            // Save quiz questions and options
+            // Save quiz questions
             for (const question of questions) {
                 const questionData = {
                     quiz_instance: savedQuiz.id,
                     content: question.content,
                     type: question.type,
+                    choice1: question.choice1 || "",
+                    choice2: question.choice2 || "",
+                    choice3: question.choice3 || "",
+                    choice4: question.choice4 || "",
                     answer: question.answer,
                 };
 
-                // console.log(JSON.stringify(questionData, null, 2)); // Log the data being sent
+                console.log(JSON.stringify(questionData, null, 2)); // Log the data being sent
 
                 let questionResponse;
-                try {
-                    if (question.id) {
-                        questionResponse = await axios.put(`${API_ENDPOINT}/api/questions/${question.id}/`, questionData, {
-                            headers: {
-                                Authorization: `Token ${token}`,
-                            },
-                        });
-                    } else {
-                        questionResponse = await axios.post(`${API_ENDPOINT}/api/questions/`, questionData, {
-                            headers: {
-                                Authorization: `Token ${token}`,
-                            },
-                        });
-                    }
-                    console.log("Saved Question:", questionResponse.data); // Log the saved question
-                } catch (error) {
-                    console.error(`Failed to save question with id ${question.id}:`, error);
-                    continue; // Skip to the next question if there's an error
+                if (question.id && !isNaN(question.id)) {
+                    questionResponse = await axios.put(`${API_ENDPOINT}/api/questions/${question.id}/`, questionData, {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                        },
+                    });
+                } else {
+                    questionResponse = await axios.post(`${API_ENDPOINT}/api/questions/`, questionData, {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                        },
+                    });
                 }
 
                 const savedQuestion = questionResponse.data;
 
-                // Save options
-                for (const option of question.options) {
-                    const optionData = {
-                        question_instance: savedQuestion.id,
-                        content: option.content,
-                        is_correct: option.is_correct,
-                    };
+                // Create or update QuizQuestion entry
+                const quizQuestionData = {
+                    quiz_instance: savedQuiz.id,
+                    question_instance: savedQuestion.id,
+                    question_order: questions.indexOf(question) + 1,
+                };
 
-                    console.log(JSON.stringify(optionData, null, 2)); // Log the data being sent
+                console.log(JSON.stringify(quizQuestionData, null, 2)); // Log the data being sent
 
-                    try {
-                        if (option.id) {
-                            await axios.put(`${API_ENDPOINT}/api/options/${option.id}/`, optionData, {
-                                headers: {
-                                    Authorization: `Token ${token}`,
-                                },
-                            });
-                        } else {
-                            await axios.post(`${API_ENDPOINT}/api/options/`, optionData, {
-                                headers: {
-                                    Authorization: `Token ${token}`,
-                                },
-                            });
-                        }
-                        console.log("Saved Option:", optionData); // Log the saved option
-                    } catch (error) {
-                        console.error(`Failed to save option with id ${option.id}:`, error);
-                    }
+                if (question.quiz_question_id) {
+                    await axios.put(`${API_ENDPOINT}/api/quiz-questions/${question.quiz_question_id}/`, quizQuestionData, {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                        },
+                    });
+                } else {
+                    await axios.post(`${API_ENDPOINT}/api/quiz-questions/`, quizQuestionData, {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                        },
+                    });
                 }
             }
 
             alert("Quiz saved successfully!");
+            unselectQuiz();
         } catch (error) {
             console.error("Failed to save quiz:", error);
             alert("Failed to save quiz. Please try again.");
@@ -274,10 +273,16 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                     type="button"
                     className="bg-accent-1 p-2 px-4 rounded-[50px] flex items-center justify-center gap-2 font-medium"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 14 14">
-                        <path fill="#1E1E2C" d="M5 13l-5-5 1.414-1.414L5 10.172l7.586-7.586L14 4l-9 9z" />
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <p className="text-base">Save Quiz</p>
+                    Save Quiz
                 </button>
             </div>
             <div className="w-11/12 h-[80%] overflow-hidden flex gap-8 mt-[20px]">
@@ -385,10 +390,11 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                     {questions.map((question, index) => (
                         <div key={question.id} className="mb-4 border-2 border-primary-3 rounded-[10px] p-4 relative">
                             <QuestionComponent
+                                key={question.quiz_question_id}
                                 index={index}
                                 question={question}
                                 handleRemoveQuestion={handleRemoveQuestion}
-                                handleUpdateQuestion={handleUpdateQuestion} // Pass the callback
+                                handleUpdateQuestion={handleUpdateQuestion}
                             />
                             <div className="absolute top-0 right-0 m-6 flex gap-2">
                                 <button

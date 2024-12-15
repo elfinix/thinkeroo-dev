@@ -101,21 +101,25 @@ CREATE TABLE question (
     type ENUM('MC', 'TF', 'IDN') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    choice1 TEXT NULL,
+    choice2 TEXT NULL,
+    choice3 TEXT NULL,
+    choice4 TEXT NULL,
     
     CONSTRAINT fk_question_quiz FOREIGN KEY (quiz_id) REFERENCES quiz(id)
 );
 
 -- Option Table (for multiple choice questions)
-CREATE TABLE option (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    question_id INT NOT NULL,
-    content TEXT NOT NULL,
-    is_correct BOOLEAN NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    CONSTRAINT fk_option_question FOREIGN KEY (question_id) REFERENCES question(id)
-);
+-- CREATE TABLE option (
+--     id INT PRIMARY KEY AUTO_INCREMENT,
+--     question_id INT NOT NULL,
+--     content TEXT NOT NULL,
+--     is_correct BOOLEAN NOT NULL,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     
+--     CONSTRAINT fk_option_question FOREIGN KEY (question_id) REFERENCES question(id)
+-- );
 
 -- Quiz Question Table (mapping questions to quizzes)
 CREATE TABLE quiz_question (

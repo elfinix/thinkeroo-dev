@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import ChooseFromDatabank from "./ChooseFromDataRepo";
+import axios from "axios";
+import { API_ENDPOINT } from "/constants/constants";
+import ChooseFromDatabank from "./ChooseFromDataRepo"; // Ensure the correct path
 
 const QuestionComponent = ({ index, question, handleRemoveQuestion, handleUpdateQuestion }) => {
     const [questionType, setQuestionType] = useState(() => {
@@ -14,102 +16,134 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion, handleUpdate
                 return "True or False";
         }
     });
+
+    console.log(question); // Should now log correctly populated question data
+
     const [content, setContent] = useState(question.content || "");
-    const [choices, setChoices] = useState([]);
-    const [correctAnswer, setCorrectAnswer] = useState(null);
+    const [correctAnswer, setCorrectAnswer] = useState(question.answer || "");
+    const [choices, setChoices] = useState([
+        question.choice1 || "",
+        question.choice2 || "",
+        question.choice3 || "",
+        question.choice4 || "",
+    ]);
     const [showBank, setShowBank] = useState(false);
 
-    const [correctAnswerIndex, setCorrectAnswerIndex] = useState(() => {
-        const correctOptionIndex = question.options.findIndex((option) => option.is_correct);
-        return correctOptionIndex !== -1 ? correctOptionIndex : null;
-    });
+    // Your token (ensure this is stored securely in a real application)
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
     useEffect(() => {
-        if (question.options) {
-            setChoices(question.options.map((option) => option.content));
-            const correctOptionIndex = question.options.findIndex((option) => option.is_correct);
-            setCorrectAnswerIndex(correctOptionIndex !== -1 ? correctOptionIndex : null);
-            setCorrectAnswer(correctOptionIndex !== -1 ? question.options[correctOptionIndex].content : "");
-        }
-        if (questionType === "Identification") {
-            setCorrectAnswer(question.answer || ""); // Set the answer field for IDN
-        }
+        setQuestionType(() => {
+            switch (question.type) {
+                case "MC":
+                    return "Multiple Choice";
+                case "IDN":
+                    return "Identification";
+                case "TF":
+                    return "True or False";
+                default:
+                    return "True or False";
+            }
+        });
+        setContent(question.content || "");
+        setCorrectAnswer(question.answer || "");
+        setChoices([question.choice1 || "", question.choice2 || "", question.choice3 || "", question.choice4 || ""]);
     }, [question]);
 
-    useEffect(() => {
-        handleUpdateQuestion(index, {
-            content,
-            type: questionType === "Multiple Choice" ? "MC" : questionType === "Identification" ? "IDN" : "TF",
-            answer: questionType === "Identification" ? correctAnswer : choices[correctAnswerIndex],
-        });
-    }, [content, questionType, correctAnswer, correctAnswerIndex]);
-
-    const handleAddChoice = () => {
-        setChoices([...choices, ""]);
+    const handleQuestionChange = (field, value) => {
+        const updatedQuestion = { ...question, [field]: value };
+        handleUpdateQuestion(index, updatedQuestion);
     };
 
-    const handleRemoveChoice = (choiceIndex) => {
-        setChoices(choices.filter((_, i) => i !== choiceIndex));
-        if (correctAnswerIndex === choiceIndex) {
-            setCorrectAnswerIndex(null);
-            setCorrectAnswer(null); // Reset correct answer when a choice is removed
+    const handleQuestionTypeChange = (newType) => {
+        setQuestionType(newType);
+        handleQuestionChange("type", newType === "Multiple Choice" ? "MC" : newType === "Identification" ? "IDN" : "TF");
+        if (newType === "Multiple Choice") {
+            setChoices(["", "", "", ""]);
+            setCorrectAnswer("");
         }
     };
 
-    const handleChoiceChange = (choiceIndex, value) => {
-        const updatedChoices = [...choices];
-        updatedChoices[choiceIndex] = value;
-        setChoices(updatedChoices);
-
-        // If the edited choice was the correct answer, update correctAnswer
-        if (correctAnswerIndex === choiceIndex) {
-            setCorrectAnswer(value);
-        }
-
-        // Update the parent component with the latest state
-        handleUpdateQuestion(index, {
-            content,
-            type: "MC",
-            answer: correctAnswerIndex !== null ? updatedChoices[correctAnswerIndex] : "",
-            options: updatedChoices.map((choice) => ({ content: choice, is_correct: false })), // Update options without altering is_correct here
+    const handleSelectQuestion = (selectedQuestion) => {
+        setQuestionType(() => {
+            switch (selectedQuestion.type) {
+                case "MC":
+                    return "Multiple Choice";
+                case "IDN":
+                    return "Identification";
+                case "TF":
+                    return "True or False";
+                default:
+                    return "True or False";
+            }
         });
+        setContent(selectedQuestion.content || "");
+        setCorrectAnswer(selectedQuestion.answer || "");
+        setChoices([
+            selectedQuestion.choice1 || "",
+            selectedQuestion.choice2 || "",
+            selectedQuestion.choice3 || "",
+            selectedQuestion.choice4 || "",
+        ]);
+        handleUpdateQuestion(index, {
+            type: selectedQuestion.type,
+            content: selectedQuestion.content,
+            choice1: selectedQuestion.choice1,
+            choice2: selectedQuestion.choice2,
+            choice3: selectedQuestion.choice3,
+            choice4: selectedQuestion.choice4,
+            answer: selectedQuestion.answer,
+        });
+        setShowBank(false); // Close the bank after selection
+    };
+
+    const fetchQuestionsByType = async (type) => {
+        try {
+            const response = await axios.get(`${API_ENDPOINT}/api/questions/`, {
+                headers: {
+                    Authorization: `Token ${token}`,
+                },
+                params: { type },
+            });
+            setChoices([
+                response.data.choice1 || "",
+                response.data.choice2 || "",
+                response.data.choice3 || "",
+                response.data.choice4 || "",
+            ]);
+            setCorrectAnswer(response.data.answer || "");
+        } catch (error) {
+            console.error("Error fetching questions:", error);
+        }
     };
 
     const renderQuestionForm = () => {
         switch (questionType) {
             case "True or False":
-                let tempCorrectAnswer = correctAnswer; // Use let for temporary correctAnswer
                 return (
                     <div>
                         <p className="text-text-2 mb-2">Question</p>
                         <input
                             type="text"
                             value={content}
-                            onChange={(e) => setContent(e.target.value)}
+                            onChange={(e) => {
+                                setContent(e.target.value);
+                                handleQuestionChange("content", e.target.value);
+                            }}
                             placeholder="Enter your question"
                             className="border-2 border-primary-3 text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px] mb-8"
                         />
                         <div className="flex flex-col gap-4 mt-2">
-                            {["True", "False"].map((option, idx) => (
+                            {["True", "False"].map((option) => (
                                 <button
                                     key={option}
                                     type="button"
                                     onClick={() => {
-                                        tempCorrectAnswer = option;
                                         setCorrectAnswer(option);
-                                        setCorrectAnswerIndex(idx);
-                                        handleUpdateQuestion(index, {
-                                            content,
-                                            type: "TF",
-                                            answer: tempCorrectAnswer,
-                                            options: [
-                                                { content: "True", is_correct: tempCorrectAnswer === "True" },
-                                                { content: "False", is_correct: tempCorrectAnswer === "False" },
-                                            ],
-                                        });
+                                        handleQuestionChange("answer", option);
                                     }}
                                     className={`border-2 rounded-[10px] border-primary-3 p-2 ${
-                                        correctAnswerIndex === idx ? "text-text-1 border-2 border-secondary-1" : ""
+                                        correctAnswer === option ? "text-text-1 border-secondary-1" : ""
                                     }`}
                                 >
                                     {option}
@@ -125,15 +159,21 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion, handleUpdate
                         <input
                             type="text"
                             value={content}
-                            onChange={(e) => setContent(e.target.value)}
+                            onChange={(e) => {
+                                setContent(e.target.value);
+                                handleQuestionChange("content", e.target.value);
+                            }}
                             placeholder="Enter your question"
                             className="border-2 border-primary-3 text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px] mb-8"
                         />
                         <p className="mt-2">Answer</p>
                         <input
                             type="text"
-                            value={correctAnswer}
-                            onChange={(e) => setCorrectAnswer(e.target.value)}
+                            value={correctAnswer || ""}
+                            onChange={(e) => {
+                                setCorrectAnswer(e.target.value);
+                                handleQuestionChange("answer", e.target.value);
+                            }}
                             placeholder="Enter the answer"
                             className="border-2 border-secondary-1 outline-none text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px]"
                         />
@@ -146,7 +186,10 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion, handleUpdate
                         <input
                             type="text"
                             value={content}
-                            onChange={(e) => setContent(e.target.value)}
+                            onChange={(e) => {
+                                setContent(e.target.value);
+                                handleQuestionChange("content", e.target.value);
+                            }}
                             placeholder="Enter your question"
                             className="border-2 border-primary-3 text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px] mb-8"
                         />
@@ -156,19 +199,10 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion, handleUpdate
                                     <input
                                         type="radio"
                                         name={`correct-answer-${index}`}
-                                        checked={correctAnswerIndex === idx}
+                                        checked={correctAnswer === choice}
                                         onChange={() => {
-                                            setCorrectAnswerIndex(idx);
                                             setCorrectAnswer(choice);
-                                            handleUpdateQuestion(index, {
-                                                content,
-                                                type: "MC",
-                                                answer: choice,
-                                                options: choices.map((opt, i) => ({
-                                                    content: opt,
-                                                    is_correct: i === idx,
-                                                })),
-                                            });
+                                            handleQuestionChange("answer", choice);
                                         }}
                                         className="cursor-pointer"
                                     />
@@ -176,27 +210,18 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion, handleUpdate
                                         type="text"
                                         placeholder={`Choice ${idx + 1}`}
                                         value={choice}
-                                        onChange={(e) => handleChoiceChange(idx, e.target.value)}
+                                        onChange={(e) => {
+                                            const newChoices = [...choices];
+                                            newChoices[idx] = e.target.value;
+                                            setChoices(newChoices);
+                                            handleQuestionChange(`choice${idx + 1}`, e.target.value);
+                                        }}
                                         className={`border-2 ${
-                                            correctAnswerIndex === idx ? "border-secondary-1" : "border-primary-3"
+                                            correctAnswer === choice ? "border-secondary-1" : "border-primary-3"
                                         } text-text-1 bg-transparent p-2 w-full placeholder:text-text-2 rounded-[10px]`}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveChoice(idx)}
-                                        className="bg-transparent border-none mr-1"
-                                    >
-                                        Remove
-                                    </button>
                                 </div>
                             ))}
-                            <button
-                                type="button"
-                                onClick={handleAddChoice}
-                                className="w-full p-2 bg-transparent text-white border-dashed border-2 border-primary-3 rounded-[10px] flex items-center justify-center"
-                            >
-                                Add Choice
-                            </button>
                         </div>
                     </div>
                 );
@@ -214,7 +239,7 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion, handleUpdate
                 <select
                     id="questionType"
                     value={questionType}
-                    onChange={(e) => setQuestionType(e.target.value)}
+                    onChange={(e) => handleQuestionTypeChange(e.target.value)}
                     className="border-2 border-primary-3 p-2 bg-transparent rounded-[10px]"
                 >
                     <option className="text-primary-1" value="True or False">
@@ -238,7 +263,7 @@ const QuestionComponent = ({ index, question, handleRemoveQuestion, handleUpdate
                 </button>
             </div>
             {renderQuestionForm()}
-            {showBank && <ChooseFromDatabank setShowBank={setShowBank} />}
+            {showBank && <ChooseFromDatabank setShowBank={setShowBank} handleSelectQuestion={handleSelectQuestion} />}
         </div>
     );
 };

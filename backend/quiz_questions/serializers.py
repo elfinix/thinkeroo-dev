@@ -1,65 +1,24 @@
 from rest_framework import serializers
-from quizzes.serializers import QuizSerializer
 from .models import QuizQuestion
-from quizzes.models import Quiz
 from questions.models import Question
-from options.models import Option
-
-class QuizSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Quiz
-        fields = ['id', 'teacher_id', 'class_instance', 'title', 'description', 'duration', 'schedule', 'status', 'deleted_at', 'created_at', 'updated_at', 'shows_results']
-
-class OptionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Option
-        fields = ['id', 'content', 'is_correct']
-
-class QuestionSerializer(serializers.ModelSerializer):
-    options = OptionSerializer(many=True)
-    answer = serializers.CharField(required=False, allow_blank=True)  # Add the answer field
-
-    class Meta:
-        model = Question
-        fields = ['id', 'quiz_instance', 'content', 'type', 'options', 'answer']  # Include 'answer'
-
-    def create(self, validated_data):
-        options_data = validated_data.pop('options')
-        answer = validated_data.pop('answer', None)
-        question = Question.objects.create(**validated_data)
-        if answer:
-            question.answer = answer
-            question.save()
-        for option_data in options_data:
-            Option.objects.create(question_instance=question, **option_data)
-        return question
-
-    def update(self, instance, validated_data):
-        options_data = validated_data.pop('options', [])
-        answer = validated_data.pop('answer', None)
-        instance.content = validated_data.get('content', instance.content)
-        instance.type = validated_data.get('type', instance.type)
-        if answer is not None:
-            instance.answer = answer
-        instance.save()
-
-        # Update options
-        for option_data in options_data:
-            option_id = option_data.get('id')
-            if option_id:
-                option = Option.objects.get(id=option_id, question_instance=instance)
-                option.content = option_data.get('content', option.content)
-                option.is_correct = option_data.get('is_correct', option.is_correct)
-                option.save()
-            else:
-                Option.objects.create(question_instance=instance, **option_data)
-
-        return instance
+from questions.serializers import QuestionSerializer
 
 class QuizQuestionSerializer(serializers.ModelSerializer):
-    quiz_instance = QuizSerializer()
-    question_instance = QuestionSerializer()
+    # For write operations: accept question_instance as an ID
+    question_instance = serializers.PrimaryKeyRelatedField(
+        queryset=Question.objects.all()
+    )
+    # For read operations: include detailed question data
+    question = QuestionSerializer(source='question_instance', read_only=True)
 
     class Meta:
         model = QuizQuestion
-        fields = '__all__'
+        fields = [
+            'id',
+            'quiz_instance',
+            'question_instance',
+            'question_order',
+            'created_at',
+            'updated_at',
+            'question',  # Nested question data
+        ]

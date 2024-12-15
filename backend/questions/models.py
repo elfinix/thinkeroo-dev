@@ -9,6 +9,10 @@ class Question(models.Model):
     type = models.CharField(max_length=3, choices=[('MC', 'Multiple Choice'), ('TF', 'True/False'), ('IDN', 'Identification')], default='MC')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    choice1 = models.TextField(null=True)  # Choice 1 for multiple choice questions
+    choice2 = models.TextField(null=True)  # Choice 2 for multiple choice questions
+    choice3 = models.TextField(null=True)  # Choice 3 for multiple choice questions
+    choice4 = models.TextField(null=True)  # Choice 4 for multiple choice questions
 
     class Meta:
         db_table = 'question'

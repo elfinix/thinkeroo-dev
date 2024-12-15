@@ -27,7 +27,6 @@ urlpatterns = [
     path('api/class-posts/', include('class_posts.urls')),
     path('api/quizzes/', include('quizzes.urls')),
     path('api/questions/', include('questions.urls')),
-    path('api/options/', include('options.urls')),
     path('api/quiz-questions/', include('quiz_questions.urls')),
     path('api/responses/', include('responses.urls')),
     path('api/student-scores/', include('student_scores.urls')),

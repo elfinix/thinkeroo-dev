@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     
     'quizzes',
     'questions',
-    'options',
     
     'quiz_questions',
     'responses',

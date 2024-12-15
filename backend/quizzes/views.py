@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Quiz
 from .serializers import QuizSerializer
+from quiz_questions.models import QuizQuestion  # Import from the correct app
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
