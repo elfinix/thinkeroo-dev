@@ -70,3 +70,4 @@ def user_quizzes(request):
     quizzes = Quiz.objects.filter(teacher_id=user.id)
     serializer = QuizSerializer(quizzes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+

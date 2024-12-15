@@ -30,11 +30,7 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                 })),
                 correctAnswer: qq.question_instance.options.find((option) => option.is_correct)?.content || null,
             }));
-            // Ensure unique IDs
-            const uniqueQuestions = quizQuestions.filter(
-                (question, index, self) => index === self.findIndex((q) => q.id === question.id)
-            );
-            setQuestions(uniqueQuestions);
+            setQuestions(quizQuestions);
         } catch (error) {
             console.error("Failed to fetch quiz questions:", error);
         }
@@ -44,30 +40,25 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
         if (selectedQuiz) {
             setTitle(selectedQuiz.title);
             setDescription(selectedQuiz.description);
-            // Convert duration from total minutes to "HH:MM:SS" format
-            if (!isNaN(selectedQuiz.duration)) {
-                const totalSeconds = selectedQuiz.duration * 60; // Convert minutes to seconds
-                const hours = Math.floor(totalSeconds / 3600)
-                    .toString()
-                    .padStart(2, "0");
-                const minutes = Math.floor((totalSeconds % 3600) / 60)
-                    .toString()
-                    .padStart(2, "0");
-                const seconds = (totalSeconds % 60).toString().padStart(2, "0");
-                setHours(hours);
-                setMinutes(minutes);
-                setSeconds(seconds);
-            } else {
-                setHours("00");
-                setMinutes("00");
-                setSeconds("00");
-            }
+            const totalSeconds = selectedQuiz.duration * 60;
+            const hours = Math.floor(totalSeconds / 3600)
+                .toString()
+                .padStart(2, "0");
+            const minutes = Math.floor((totalSeconds % 3600) / 60)
+                .toString()
+                .padStart(2, "0");
+            const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+            setHours(hours);
+            setMinutes(minutes);
+            setSeconds(seconds);
             setSchedule(new Date(selectedQuiz.schedule).toISOString().split("T")[0]);
-            setClassId(selectedQuiz.class_instance.id); // Assuming class_instance includes id
-            setShowScore(selectedQuiz.shows_results || false); // Updated to map 'shows_results'
+            setClassId(selectedQuiz.class_instance.id);
+            setShowScore(selectedQuiz.shows_results || false);
+            fetchQuizQuestions();
         }
+    }, [selectedQuiz]);
 
-        // Fetch classes
+    useEffect(() => {
         const fetchClasses = async () => {
             try {
                 const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -83,25 +74,8 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
         };
 
         fetchClasses();
+    }, []);
 
-        if (selectedQuiz) {
-            fetchQuizQuestions();
-        }
-    }, [selectedQuiz]);
-
-    useEffect(() => {
-        if (selectedQuiz) {
-            fetchQuizQuestions();
-        }
-    }, [selectedQuiz]);
-
-    // Add the debugging useEffect here
-    useEffect(() => {
-        console.log("Selected Quiz:", selectedQuiz);
-        console.log("Questions State:", questions);
-    }, [selectedQuiz, questions]);
-
-    // Centralized Validation for Duration
     useEffect(() => {
         const hoursValid = /^([0-1]\d|2[0-3])$/.test(hours);
         const minutesValid = /^([0-5]\d)$/.test(minutes);
@@ -109,18 +83,15 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
         setIsDurationValid(hoursValid && minutesValid && secondsValid);
     }, [hours, minutes, seconds]);
 
-    // Add a new question
     const handleAddQuestion = () => {
         const newQuestion = { id: Date.now(), type: "True or False", content: "", choices: [] };
         setQuestions([...questions, newQuestion]);
     };
 
-    // Remove a question
     const handleRemoveQuestion = (id) => {
         setQuestions(questions.filter((question) => question.id !== id));
     };
 
-    // Move question up
     const moveQuestionUp = (index) => {
         if (index === 0) return;
         const newQuestions = [...questions];
@@ -128,7 +99,6 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
         setQuestions(newQuestions);
     };
 
-    // Move question down
     const moveQuestionDown = (index) => {
         if (index === questions.length - 1) return;
         const newQuestions = [...questions];
@@ -136,48 +106,83 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
         setQuestions(newQuestions);
     };
 
-    // Handle input changes
     const handleTitleChange = (e) => setTitle(e.target.value);
     const handleDescriptionChange = (e) => setDescription(e.target.value);
     const handleScheduleChange = (e) => setSchedule(e.target.value);
     const handleClassChange = (e) => setClassId(e.target.value);
     const handleShowScoreChange = (e) => setShowScore(e.target.checked);
 
-    // Helper function to get class name based on classId
     const getSelectedClassName = () => {
         const selectedClass = classes.find((cls) => cls.id === classId);
         return selectedClass ? selectedClass.name : "Select Class";
     };
 
-    // Handle Save Quiz
     const handleSaveQuiz = async () => {
-        // Check if duration is valid
         if (!isDurationValid) {
             alert("Please enter a valid duration in HH:MM:SS format.");
             return;
         }
 
-        // Convert "HH:MM:SS" to total minutes
         const totalMinutes = parseInt(hours || "0") * 60 + parseInt(minutes || "0") + parseInt(seconds || "0") / 60;
 
         const quizData = {
             title,
             description,
-            duration: totalMinutes, // Backend expects duration in minutes
+            duration: totalMinutes,
             schedule,
-            class_id: classId,
-            shows_results: showScore, // Maps 'showScore' to 'shows_results'
+            class_instance: classId, // Ensure this matches the backend field name
+            shows_results: showScore,
             questions,
         };
 
+        console.log("Quiz Data:", quizData); // Log the data being sent
+
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            const response = await axios.post(`${API_ENDPOINT}/api/quizzes/`, quizData, {
-                headers: {
-                    Authorization: `Token ${token}`,
-                },
-            });
-            // Handle successful save
+            let response;
+            if (selectedQuiz) {
+                response = await axios.put(`${API_ENDPOINT}/api/quizzes/${selectedQuiz.id}/`, quizData, {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                });
+            } else {
+                response = await axios.post(`${API_ENDPOINT}/api/quizzes/`, quizData, {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                });
+            }
+
+            const savedQuiz = response.data;
+
+            // Save quiz questions
+            for (const question of questions) {
+                const questionData = {
+                    quiz_instance: savedQuiz.id,
+                    content: question.content,
+                    type: question.type,
+                    options: question.options.map((option) => ({
+                        content: option.content,
+                        is_correct: option.is_correct,
+                    })),
+                };
+
+                if (question.id) {
+                    await axios.put(`${API_ENDPOINT}/api/questions/${question.id}/`, questionData, {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                        },
+                    });
+                } else {
+                    await axios.post(`${API_ENDPOINT}/api/questions/`, questionData, {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                        },
+                    });
+                }
+            }
+
             alert("Quiz saved successfully!");
             unselectQuiz();
         } catch (error) {
@@ -239,17 +244,10 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                     <label className="flex flex-col w-full gap-2">
                         <p className="text-text-2">Timer</p>
                         <div className="flex items-center gap-2">
-                            {/* Hours Input */}
                             <input
                                 type="text"
                                 value={hours}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    const regex = /^([0-1]?\d|2[0-3]?)$/;
-                                    if (regex.test(value) || value === "") {
-                                        setHours(value);
-                                    }
-                                }}
+                                onChange={(e) => setHours(e.target.value)}
                                 placeholder="HH"
                                 maxLength="2"
                                 className={`w-16 h-[57px] px-3 text-text-1 placeholder:text-text-2 rounded-[10px] border-2 ${
@@ -257,17 +255,10 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                                 } bg-transparent`}
                             />
                             <span className="text-text-2">:</span>
-                            {/* Minutes Input */}
                             <input
                                 type="text"
                                 value={minutes}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    const regex = /^([0-5]?\d)$/;
-                                    if (regex.test(value) || value === "") {
-                                        setMinutes(value);
-                                    }
-                                }}
+                                onChange={(e) => setMinutes(e.target.value)}
                                 placeholder="MM"
                                 maxLength="2"
                                 className={`w-16 h-[57px] px-3 text-text-1 placeholder:text-text-2 rounded-[10px] border-2 ${
@@ -275,17 +266,10 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                                 } bg-transparent`}
                             />
                             <span className="text-text-2">:</span>
-                            {/* Seconds Input */}
                             <input
                                 type="text"
                                 value={seconds}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    const regex = /^([0-5]?\d)$/;
-                                    if (regex.test(value) || value === "") {
-                                        setSeconds(value);
-                                    }
-                                }}
+                                onChange={(e) => setSeconds(e.target.value)}
                                 placeholder="SS"
                                 maxLength="2"
                                 className={`w-16 h-[57px] px-3 text-text-1 placeholder:text-text-2 rounded-[10px] border-2 ${
@@ -313,13 +297,11 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                             onChange={handleClassChange}
                             className="h-[57px] text-text-1 px-3 rounded-[10px] border-2 border-primary-3 bg-transparent"
                         >
-                            {/* Always display the selected quiz class name as the first choice */}
                             <option className="text-black" value="">
                                 {selectedQuiz.class_name}
                             </option>
-                            {/* Map through classes, excluding the current selectedQuiz class */}
                             {classes
-                                .filter((cls) => cls.name !== selectedQuiz.class_name) // Exclude selectedQuiz class name
+                                .filter((cls) => cls.name !== selectedQuiz.class_name)
                                 .map((cls) => (
                                     <option key={cls.id} className="text-black" value={cls.id}>
                                         {cls.name}
