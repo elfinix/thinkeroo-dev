@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-function StudentModal({
+function TeacherModal({
     isOpen,
     onClose,
     onSave,
@@ -48,4 +48,4 @@ function StudentModal({
     );
 }
 
-export default StudentModal;
+export default TeacherModal;

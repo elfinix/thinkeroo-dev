@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { UserRound, LogOut } from "lucide-react";
-import StudentModal from "./StudentModal";
+import TeacherModal from "./TeacherModal"; // Assuming you have a similar modal component for teachers
 
-const StudentProfileModal = ({ closeModal, onProfileClick }) => {
+const TeacherProfileModal = ({ closeModal, onProfileClick }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const modalRef = useRef(null);
 
@@ -60,7 +60,7 @@ const StudentProfileModal = ({ closeModal, onProfileClick }) => {
                 </button>
             </div>
             {isModalOpen && (
-                <StudentModal
+                <TeacherModal
                     isOpen={isModalOpen}
                     onClose={handleCancelSave}
                     onSave={handleConfirmSave}
@@ -73,4 +73,4 @@ const StudentProfileModal = ({ closeModal, onProfileClick }) => {
     );
 };
 
-export default StudentProfileModal;
+export default TeacherProfileModal;

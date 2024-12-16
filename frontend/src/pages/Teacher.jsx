@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import TeacherSidebar from "../components/Teacher/TeacherSidebar";
 import Header from "../components/Teacher/Header";
 import TeacherRender from "../components/Teacher/TeacherRender";
-import TeacherSidebar from "../components/Teacher/TeacherSidebar";
 
 const Teacher = () => {
     const [teacherRender, setTeacherRender] = useState("Class");

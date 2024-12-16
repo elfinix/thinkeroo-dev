@@ -1,28 +1,58 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useRef } from "react";
+import TeacherProfileModal from "./Modals/TeacherProfileModal";
+import TeacherProfile from "./Profile/TeacherProfile"; // Assuming you have a similar profile component for teachers
 
-const Header = () => {
-    const navigate = useNavigate();
+const Header = ({ teacherRender }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showProfile, setShowProfile] = useState(false);
+    const buttonRef = useRef(null);
 
-    const handleLogout = () => {
-        // Clear the token from storage
-        localStorage.removeItem("token");
-        sessionStorage.removeItem("token");
-        localStorage.removeItem("role");
-        sessionStorage.removeItem("role");
-        // Redirect to the login page
-        navigate("/auth");
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleProfileClick = () => {
+        setShowProfile(true);
+        closeModal();
+    };
+
+    const goBack = () => {
+        setShowProfile(false);
     };
 
     return (
-        <div className="header-container flex justify-end items-center p-4">
-            <button className="w-[42px] h-[42px] rounded-full overflow-hidden mr-4" type="button">
-                <img src="https://placehold.co/80x80" alt="profile-menu" />
-            </button>
-            <button className="bg-red-500 text-white px-4 py-2 rounded-full" type="button" onClick={handleLogout}>
-                Logout
-            </button>
-        </div>
+        <>
+            <div className="w-full h-[87px] border-b-primary-3 border-2 border-x-0 border-t-0 flex items-center px-8 justify-between relative">
+                <h1 className="font-semibold text-[38px] text-text-1">{teacherRender}</h1>
+                <button
+                    ref={buttonRef}
+                    onClick={openModal}
+                    className="w-[42px] h-[42px] rounded-full overflow-hidden"
+                    type="button"
+                >
+                    <img src="https://placehold.co/80x80" alt="profile-menu" />
+                </button>
+            </div>
+
+            {isModalOpen && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: `${buttonRef.current.getBoundingClientRect().bottom + window.scrollY - 30}px`,
+                        left: `${buttonRef.current.getBoundingClientRect().right - 150}px`,
+                        zIndex: 1000,
+                    }}
+                >
+                    <TeacherProfileModal closeModal={closeModal} onProfileClick={handleProfileClick} />
+                </div>
+            )}
+
+            {showProfile && <TeacherProfile goBack={goBack} />}
+        </>
     );
 };
 
