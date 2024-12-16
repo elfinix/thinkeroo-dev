@@ -7,7 +7,7 @@ import TeacherClassQuizScores from "../Quiz/TeacherClassQuizScores";
 import TeacherClassOverviewDetailsEdit from "./TeacherClassOverviewDetailsEdit";
 import { API_ENDPOINT } from "/constants/constants";
 
-const TeacherClassOverview = ({ selectedClass }) => {
+const TeacherClassOverview = ({ selectedClass, setShowOverview }) => {
     const [render, setRender] = useState("Overview");
     const [showQuizScore, setShowQuizScore] = useState(false);
     const [selectedQuiz, setSelectedQuiz] = useState();
@@ -60,7 +60,7 @@ const TeacherClassOverview = ({ selectedClass }) => {
         <div className="w-full h-full flex flex-col items-center justify-start">
             {!showQuizScore && classDetails && (
                 <>
-                    <TeacherClassOverviewHeader setRender={setRender} render={render} />
+                    <TeacherClassOverviewHeader setRender={setRender} render={render} setShowOverview={setShowOverview} />
                     <TeacherClassOverviewRender
                         render={render}
                         viewScore={viewScore}

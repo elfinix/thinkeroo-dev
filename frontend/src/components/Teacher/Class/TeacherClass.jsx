@@ -73,7 +73,7 @@ const TeacherClass = () => {
                     />
                 </>
             )}
-            {showOverview && <TeacherClassOverview selectedClass={selectedClass} />}
+            {showOverview && <TeacherClassOverview selectedClass={selectedClass} setShowOverview={setShowOverview} />}
 
             {showCreateClass && (
                 <TeacherCreateClass
