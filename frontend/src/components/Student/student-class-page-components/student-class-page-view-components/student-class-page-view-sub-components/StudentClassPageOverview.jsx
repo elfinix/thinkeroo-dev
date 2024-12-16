@@ -9,8 +9,8 @@ import { API_ENDPOINT } from "/constants/constants";
 function StudentClassPageOverview({ classData: classItem, onBack }) {
     const [render, setRender] = useState("Overview");
     const [showOverview, setShowOverview] = useState(true);
-    const [backToClasslist, setBackToClasslist] = useState(false);
     const [class_totalStudents, setTotalStudents] = useState(0);
+    const [backToClasslist, setBackToClasslist] = useState(false);
 
     const fetchTotalStudents = async () => {
         try {
@@ -25,11 +25,6 @@ function StudentClassPageOverview({ classData: classItem, onBack }) {
         fetchTotalStudents();
     }, [classItem.id]);
 
-    // Render StudentClassPage if backToClasslist is true
-    if (backToClasslist) {
-        return <StudentClassPage />;
-    }
-
     return (
         <div className="flex min-h-screen bg-primary-1 text-text-1 font-lexend">
             <div className="flex-1 p-4 md:p-6 -ml-1 -mt-6">
@@ -38,7 +33,7 @@ function StudentClassPageOverview({ classData: classItem, onBack }) {
                     setRender={setRender}
                     render={render}
                     setShowOverview={setShowOverview}
-                    onBack={() => setBackToClasslist(true)} // Trigger navigation back to Classlist
+                    onBack={onBack} // Trigger navigation back to Classlist
                 />
 
                 {/* Render Content Based on 'render' State */}

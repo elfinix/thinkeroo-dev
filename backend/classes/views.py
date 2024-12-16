@@ -1,4 +1,7 @@
-from rest_framework.decorators import api_view, parser_classes
+from quizzes.models import Quiz
+from quizzes.serializers import QuizSerializer
+from rest_framework.decorators import api_view, parser_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
@@ -92,4 +95,13 @@ def unarchive_class(request, pk):
     class_instance.archived_at = None
     class_instance.save()
     serializer = ClassSerializer(class_instance)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+def user_class_quizzes(request):
+    """Retrieve all quizzes connected to a user via a class."""
+    user = request.user
+    classes = Class.objects.filter()
+    quizzes = Quiz.objects.filter(class_instance__in=classes, status='active')
+    serializer = QuizSerializer(quizzes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)

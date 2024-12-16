@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios"; // Added import
+import axios from "axios";
 import { AlertCircle } from "lucide-react";
 import BackIcon from "../../student-basic-components/student-icons-components/BackIcon";
 import StudentClassPageQuiz from "../../student-class-page-components/student-class-page-view-components/student-class-page-view-sub-components/StudentClassPageQuiz";
 import StudentQuizShowCorrect from "./StudentQuizShowCorrect";
 import StudentQuizResult from "./StudentQuizResult";
+import { API_ENDPOINT } from "/constants/constants";
 
-import { API_ENDPOINT } from "/constants/constants"; // Ensure correct path
-import { getQuizCount } from "/src/global/globals"; // Added import
-
-const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
+function StudentTakingQuiz({ selectedQuiz, handleBackToQuizList, classItem, onBack }) {
     const [selectedAnswers, setSelectedAnswers] = useState({});
     const [answeredQuestions, setAnsweredQuestions] = useState(0);
     const [errorMessages, setErrorMessages] = useState([]);
@@ -20,7 +18,7 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
     const [userId, setUserId] = useState(null);
     const [quizResults, setQuizResults] = useState(null);
 
-    // Fetch questions from the backend
+    // Fetch questions and user ID from the backend
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -34,15 +32,15 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
                 const sortedQuestions = questionsResponse.data.sort((a, b) => a.question_order - b.question_order);
                 setQuestions(sortedQuestions);
                 console.log(sortedQuestions);
+                console.log("Sorted Questions", sortedQuestions);
 
                 // Fetch user ID (assuming you have an endpoint to get user details)
-                const userResponse = await axios.get(`${API_ENDPOINT}/api/users/get_user_id`, {
+                const userResponse = await axios.get(`${API_ENDPOINT}/api/users/get_user_id/`, {
                     headers: {
                         Authorization: `Token ${token}`,
                     },
                 });
                 setUserId(userResponse.data.user_id);
-                console.log(userResponse.data.user_id);
             } catch (error) {
                 console.error("Failed to fetch data:", error);
                 // Handle errors (e.g., show a notification)
@@ -112,16 +110,15 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
 
         const timer = setInterval(() => {
             setTimeLeft((prevTimeLeft) => prevTimeLeft - 1);
-            setProgress(((initialTimeLimit - (timeLeft - 1)) / initialTimeLimit) * 100);
         }, 1000);
 
         return () => clearInterval(timer);
     }, [timeLeft]);
 
     useEffect(() => {
-        const progressPercentage = (answeredQuestions / (getQuizCount() - 1)) * 100;
+        const progressPercentage = (answeredQuestions / (questions.length - 1)) * 100;
         setProgress(progressPercentage);
-    }, [answeredQuestions]);
+    }, [answeredQuestions, questions.length]);
 
     const handleSubmit = async () => {
         try {
@@ -133,28 +130,57 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
                 },
             };
 
-            const responsePromises = Object.entries(selectedAnswers).map(([quiz_question_id, selected_option]) =>
-                axios.post(
-                    `${API_ENDPOINT}/api/responses/`,
-                    {
-                        student_id: userId,
-                        quiz_question_id: parseInt(quiz_question_id),
-                        selected_option,
-                    },
-                    config
-                )
+            // Loop through each question and submit individual responses
+            const responsePromises = Object.entries(selectedAnswers).map(([quiz_question_id, selected_option]) => {
+                const responsePayload = {
+                    student_id: userId,
+                    quiz_question_id: parseInt(quiz_question_id, 10),
+                    selected_option: Array.isArray(selected_option) ? selected_option.join(", ") : selected_option,
+                };
+
+                // Log the payload being sent to the API
+                console.log("Sending payload to API:", responsePayload);
+
+                return axios.post(`${API_ENDPOINT}/api/responses/submit/`, responsePayload, config);
+            });
+
+            await Promise.all(responsePromises);
+
+            // Optionally, you can calculate the total score here or fetch it from the backend
+            // For this example, we'll assume there's an endpoint to calculate and return the total score
+            const submitResponse = await axios.post(
+                `${API_ENDPOINT}/api/responses/calculate_score/`, // Ensure this endpoint exists or adjust accordingly
+                { quiz_id: selectedQuiz.id },
+                config
             );
 
-            // Wait for all submissions to complete
-            const responses = await Promise.all(responsePromises);
+            const { total_score, quiz_id } = submitResponse.data;
 
-            // After successful submissions, fetch the quiz results
-            const resultResponse = await axios.get(`${API_ENDPOINT}/api/quiz-results/${selectedQuiz.id}/`, config);
-            const { total_score, responses: quizResponses } = resultResponse.data;
+            // Manually send a POST request to update StudentScore
+            const studentScoreData = {
+                student: userId,
+                quiz: quiz_id,
+                total_score: total_score,
+                time_finished: new Date().toISOString(),
+            };
+
+            // Log the payload being sent to the API
+            console.log("Sending student score payload to API:", studentScoreData);
+
+            await axios.post(`${API_ENDPOINT}/api/student-scores/`, studentScoreData, config);
+
+            console.log("Quiz submitted successfully!");
+
+            // Fetch the quiz results
+            const resultResponse = await axios.get(
+                `${API_ENDPOINT}/api/student-scores/quiz-results/${selectedQuiz.id}/`,
+                config
+            );
+            const { responses: quizResponses, correct_answers } = resultResponse.data;
 
             if (selectedQuiz.shows_results) {
                 setCurrentView("quizShowCorrect");
-                setQuizResults({ total_score, responses: quizResponses });
+                setQuizResults({ total_score, responses: quizResponses, correct_answers });
             } else {
                 setCurrentView("quizResult");
                 setQuizResults({ total_score });
@@ -170,12 +196,11 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
         const handleClickOutside = (event) => {
             if (modalRef.current && !modalRef.current.contains(event.target)) {
                 setErrorMessages([]);
+                setErrorQuestions([]);
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const renderQuestion = (question, idx) => {
@@ -183,71 +208,53 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
         const isError = errorQuestions.includes(question.id);
         switch (question.question.type) {
             case "MC":
-            case "SM":
                 return (
-                    <div
-                        key={question.id}
-                        className={`border-2 p-4 sm:p-6 border-primary-3 rounded-xl min-w-56 md:w-full max-lg ${
-                            isError ? "border-red-500" : "border-primary-3"
-                        } flex flex-col space-y-4`}
-                    >
+                    <div key={question.id} className="border-2 p-6 rounded-xl border-primary-3 flex flex-col space-y-4">
                         <div className="text-lg sm:text-xl text-text-1 mb-2 sm:mb-4">Question {questionNumber}</div>
                         <div className="text-sm sm:text-base text-text-1 mb-2 sm:mb-4">{question.question.content}</div>
+
+                        {/* Display multiple choice answers */}
                         <div className="flex flex-col space-y-3">
-                            {[
-                                question.question.choice1,
-                                question.question.choice2,
-                                question.question.choice3,
-                                question.question.choice4,
-                            ].map((choiceKey, index) => (
+                            {["A", "B", "C", "D"].map((option, index) => (
                                 <button
                                     key={index}
-                                    className="w-full border-2 border-primary-3 text-primary-3 py-2 sm:py-3 rounded-lg text-sm sm:text-base"
-                                    onClick={() => handleSelectionChange(question.id, choiceKey, question.noOfAnswer)}
-                                    style={{
-                                        borderColor: selectedAnswers[question.id]?.includes(choiceKey)
-                                            ? "#8A2EDF"
-                                            : "#363657",
-                                        color: selectedAnswers[question.id]?.includes(choiceKey) ? "#8A2EDF" : "#363657",
-                                    }}
+                                    className={`w-full py-2 sm:py-3 rounded-lg text-sm sm:text-base ${
+                                        selectedAnswers[question.id] && selectedAnswers[question.id].includes(option)
+                                            ? "text-secondary-1 border-2 border-secondary-1 p-3"
+                                            : "text-primary-3 border-2 border-primary-3 p-3"
+                                    }`}
+                                    onClick={() => handleSelectionChange(question.id, option, 1)} // Assuming single answer
                                 >
-                                    {choiceKey}
+                                    {option}. {question.question[`choice${index + 1}`]}
                                 </button>
                             ))}
                         </div>
                     </div>
                 );
-
             case "TF":
                 return (
-                    <div
-                        key={question.id}
-                        className={`border-2 p-4 sm:p-6 border-primary-3 rounded-xl min-w-56 md:w-full max-lg ${
-                            isError ? "border-red-500" : "border-primary-3"
-                        } flex flex-col space-y-4`}
-                    >
+                    <div key={question.id} className="border-2 p-6 rounded-xl border-primary-3 flex flex-col space-y-4">
                         <div className="text-lg sm:text-xl text-text-1 mb-2 sm:mb-4">Question {questionNumber}</div>
                         <div className="text-sm sm:text-base text-text-1 mb-2 sm:mb-4">{question.question.content}</div>
+
+                        {/* Display true/false answers */}
                         <div className="flex flex-col space-y-3">
-                            {[question.question.choice1, question.question.choice2].map((choiceKey, index) => (
+                            {["True", "False"].map((option, index) => (
                                 <button
                                     key={index}
-                                    className="w-full border-2 border-primary-3 text-primary-3 py-2 sm:py-3 rounded-lg text-sm sm:text-base"
-                                    onClick={() => handleSelectionChange(question.id, choiceKey, question.noOfAnswer)}
-                                    style={{
-                                        borderColor: selectedAnswers[question.id]?.includes(choiceKey)
-                                            ? "#8A2EDF"
-                                            : "#363657",
-                                        color: selectedAnswers[question.id]?.includes(choiceKey) ? "#8A2EDF" : "#363657",
-                                    }}
+                                    className={`w-full py-2 sm:py-3 rounded-lg text-sm sm:text-base ${
+                                        selectedAnswers[question.id] && selectedAnswers[question.id].includes(option)
+                                            ? "text-secondary-1 border-2 border-secondary-1 p-3"
+                                            : "text-primary-3 border-2 border-primary-3 p-3"
+                                    }`}
+                                    onClick={() => handleSelectionChange(question.id, option, 1)} // Assuming single answer
                                 >
-                                    {choiceKey}
+                                    {option}
                                 </button>
                             ))}
                         </div>
                     </div>
                 );
-
             case "IDN":
                 const isShortAnswerError = errorQuestions.includes(question.id);
                 return (
@@ -269,7 +276,6 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
                         </div>
                     </div>
                 );
-
             default:
                 return null;
         }
@@ -279,12 +285,18 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
         return <StudentClassPageQuiz classItem={classItem} selectedQuiz={selectedQuiz} />;
     }
 
-    if (currentView === "quizShowCorrect") {
-        return <StudentQuizShowCorrect questions={questions} onBack={onBack} selectedQuiz={selectedQuiz} />;
+    if (currentView === "quizShowCorrect" && quizResults) {
+        return <StudentQuizShowCorrect questions={questions} onBack={handleBackToQuizList} selectedQuiz={selectedQuiz} />;
     }
 
-    if (currentView === "quizResult") {
-        return <StudentQuizResult questions={questions} onBack={onBack} selectedQuiz={selectedQuiz} />;
+    if (currentView === "quizResult" && quizResults) {
+        return (
+            <StudentQuizResult
+                totalScore={quizResults.total_score}
+                onBack={handleBackToQuizList}
+                selectedQuiz={selectedQuiz}
+            />
+        );
     }
 
     return (
@@ -326,7 +338,7 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
                         className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-red-500 border-2 border-red-500 bg-primary-1 z-50 p-4 sm:p-6 w-[90%] sm:w-auto max-w-lg rounded-lg flex items-start space-x-2"
                     >
                         <AlertCircle className="text-red-500 w-5 h-5" />
-                        <p className="text-sm sm:text-base">{errorMessages}</p>
+                        <p className="text-sm sm:text-base">{errorMessages.join(", ")}</p>
                     </div>
                 </>
             )}
@@ -337,10 +349,10 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
             >
                 <style>
                     {`
-            .scrollable-div::-webkit-scrollbar {
-              display: none; /* for Chrome, Safari, and Opera */
-            }
-          `}
+                        .scrollable-div::-webkit-scrollbar {
+                            display: none; /* for Chrome, Safari, and Opera */
+                        }
+                    `}
                 </style>
                 <div className="space-y-8 scrollable-div">
                     {questions.map((question, index) => renderQuestion(question, index))}
@@ -348,6 +360,6 @@ const StudentTakingQuiz = ({ selectedQuiz, onBack, classItem }) => {
             </div>
         </div>
     );
-};
+}
 
 export default StudentTakingQuiz;

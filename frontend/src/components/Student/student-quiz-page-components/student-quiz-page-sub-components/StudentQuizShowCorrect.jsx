@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import BackIcon from "../../student-basic-components/student-icons-components/BackIcon";
 
 function StudentQuizShowCorrect({ questions, onBack, selectedQuiz }) {
-    const isCorrect = question.is_correct;
-    const questionNumber = idx + 1;
-
     const renderQuestion = (question, idx) => {
-        const isCorrect = checkAnswer(question);
+        console.log(question);
+        const isCorrect = question.is_correct;
         const isError = !isCorrect;
         const questionNumber = idx + 1;
 
@@ -38,7 +36,7 @@ function StudentQuizShowCorrect({ questions, onBack, selectedQuiz }) {
                         ))}
 
                     {question.type === "MC" &&
-                        [question.question.choice1, question.question.choice2].map((choiceKey, index) => (
+                        question.question.choices.map((choiceKey, index) => (
                             <button
                                 key={index}
                                 className={`w-full border-2 text-primary-3 py-2 sm:py-3 rounded-lg text-sm sm:text-base ${
@@ -53,7 +51,7 @@ function StudentQuizShowCorrect({ questions, onBack, selectedQuiz }) {
                         ))}
 
                     {question.type === "SM" &&
-                        [question.question.choice1, question.question.choice2].map((choiceKey, index) => (
+                        question.question.choices.map((choiceKey, index) => (
                             <button
                                 key={index}
                                 className={`w-full border-2 text-primary-3 py-2 sm:py-3 rounded-lg text-sm sm:text-base ${
@@ -61,6 +59,7 @@ function StudentQuizShowCorrect({ questions, onBack, selectedQuiz }) {
                                         ? "border-secondary-1 text-secondary-1"
                                         : "border-primary-3"
                                 }`}
+                                disabled
                             >
                                 {choiceKey}
                             </button>
@@ -81,7 +80,7 @@ function StudentQuizShowCorrect({ questions, onBack, selectedQuiz }) {
                     {isCorrect ? (
                         <span className="text-green-500">Correct Answer!</span>
                     ) : (
-                        <span className="text-red-500">Correct answer: {JSON.stringify(question.correctAnswer)}</span>
+                        <span className="text-red-500">Correct answer: {question.correct_answer || "N/A"}</span>
                     )}
                 </div>
             </div>
@@ -105,7 +104,7 @@ function StudentQuizShowCorrect({ questions, onBack, selectedQuiz }) {
                 </button>
                 <div className="text-sm sm:text-base text-text-2 text-center">{selectedQuiz.title}</div>
                 <div className="absolute right-10 top-1/2 transform -translate-y-1/2 text-sm sm:text-base text-text-1">
-                    10/30
+                    {/* Optionally, you can display total score or any other relevant info */}
                 </div>
             </div>
 
@@ -115,10 +114,10 @@ function StudentQuizShowCorrect({ questions, onBack, selectedQuiz }) {
             >
                 <style>
                     {`
-            .scrollable-div::-webkit-scrollbar {
-              display: none; /* for Chrome, Safari, and Opera */
-            }
-          `}
+                        .scrollable-div::-webkit-scrollbar {
+                            display: none; /* for Chrome, Safari, and Opera */
+                        }
+                    `}
                 </style>
                 <div className="space-y-8 scrollable-div">
                     {questions.map((question, index) => renderQuestion(question, index))}
