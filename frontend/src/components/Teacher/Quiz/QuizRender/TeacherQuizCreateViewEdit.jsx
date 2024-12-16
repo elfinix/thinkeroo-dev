@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import QuestionComponent from "./QuestionComponent";
 import { API_ENDPOINT } from "/constants/constants";
-import { FaArrowUp, FaArrowDown, FaTrash } from "react-icons/fa";
+import { FaArrowUp, FaArrowDown, FaTrash, FaPlus } from "react-icons/fa";
 
 const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
     const [questions, setQuestions] = useState([]);
@@ -445,10 +445,8 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                         onClick={handleAddQuestion}
                         className="w-full h-[75px] bg-transparent text-white border-dashed border-2 border-primary-3 rounded-[10px] flex items-center justify-center"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path fill="#F5F5F5" d="M11 11V5h2v6h6v2h-6v6H6V8H0V6h6Z" />
-                        </svg>
-                        Add Question
+                        <FaPlus />
+                        &nbsp;Add Question
                     </button>
                 </div>
             </div>
