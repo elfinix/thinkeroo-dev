@@ -28,7 +28,7 @@ const StudentSidebar = ({ studentRender, setStudentRender }) => {
                     <img className=" h-12 select-none pointer-events-none" src={logo} alt="" />
                     {expand && <h1 className="text-2xl font-semibold text-text-1">Thinkeroo</h1>}
                 </div>
-                <div className="flex flex-col items-center justify-center gap-6 mt-24">
+                <div className="flex flex-col items-center justify-center gap-6 mt-20 mr-4">
                     <button
                         onClick={() => setStudentRender("Class")}
                         className="student_sidebar_entry w-full flex items-center gap-3"

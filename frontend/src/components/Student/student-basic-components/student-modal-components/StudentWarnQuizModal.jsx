@@ -1,22 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-function StudentModal({
-    isOpen,
-    onClose,
-    onSave,
-    modalTitle = "Save Changes?",
-    modalDesc = "Anything that you modify will be saved. Are you sure you want to save?",
-    bttnName = "Accept",
-}) {
-    useEffect(() => {
-        if (isOpen) {
-            // Reset any modal states if needed
-        }
-    }, [isOpen]);
-
-    const handleSave = () => {
-        onSave();
-    };
+const StudentWarnQuizModal = ({ isOpen, onClose, onConfirm }) => {
+    const modalTitle = "Start Quiz?";
+    const modalDesc = "Once you start the quiz, you cannot go back. Are you sure you want to start the quiz?";
+    const bttnName = "Start";
 
     if (!isOpen) return null;
 
@@ -38,7 +25,7 @@ function StudentModal({
                     </button>
                     <button
                         className="bg-accent-1 text-primary-1 px-4 py-2 rounded-full hover:bg-accent-2 w-[119px]"
-                        onClick={handleSave}
+                        onClick={onConfirm}
                     >
                         {bttnName}
                     </button>
@@ -46,6 +33,6 @@ function StudentModal({
             </div>
         </div>
     );
-}
+};
 
-export default StudentModal;
+export default StudentWarnQuizModal;

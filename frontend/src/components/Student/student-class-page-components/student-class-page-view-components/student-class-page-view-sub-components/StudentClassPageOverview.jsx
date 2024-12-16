@@ -134,7 +134,7 @@ function StudentClassPageOverview({ classData: classItem, onBack }) {
                             </div>
                         </div>
                     ) : (
-                        <StudentClassPageQuiz />
+                        <StudentClassPageQuiz classItem={classItem} />
                     )
                 ) : null}
             </div>
