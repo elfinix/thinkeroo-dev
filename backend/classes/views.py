@@ -71,3 +71,25 @@ def archive_class(request, pk):
     class_instance.is_archived = True
     class_instance.save()
     return Response({"message": "Class archived successfully"}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def archived_classes(request):
+    """List all archived classes for the authenticated teacher."""
+    teacher = request.user
+    classes = Class.objects.filter(is_archived=True)
+    serializer = ClassSerializer(classes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+def unarchive_class(request, pk):
+    """Unarchive a specific class."""
+    try:
+        class_instance = Class.objects.get(pk=pk)
+    except Class.DoesNotExist:
+        return Response({'error': 'Class not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    class_instance.is_archived = False
+    class_instance.archived_at = None
+    class_instance.save()
+    serializer = ClassSerializer(class_instance)
+    return Response(serializer.data, status=status.HTTP_200_OK)

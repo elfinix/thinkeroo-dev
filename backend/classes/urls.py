@@ -8,4 +8,6 @@ urlpatterns = [
     path('<int:pk>/update/', views.update_class, name='update_class'),
     path('<int:pk>/delete/', views.delete_class, name='delete_class'),
     path('archive_class/<int:pk>/', views.archive_class, name='archive_class'),
+    path('archived/', views.archived_classes, name='archived_classes'),  # List archived classes
+    path('unarchive_class/<int:pk>/', views.unarchive_class, name='unarchive_class'),  # Unarchive class
 ]
