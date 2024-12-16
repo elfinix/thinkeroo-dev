@@ -4,8 +4,8 @@ from questions.models import Question
 
 class QuizQuestion(models.Model):
     id = models.AutoField(primary_key=True)
-    quiz_instance = models.ForeignKey(Quiz, on_delete=models.CASCADE, db_column='quiz_id')
-    question_instance = models.ForeignKey(Question, on_delete=models.CASCADE, db_column='question_id')
+    quiz_instance = models.ForeignKey(Quiz, on_delete=models.CASCADE, db_column='quiz_id', related_name='quiz_questions_quizquestion_set')
+    question_instance = models.ForeignKey(Question, on_delete=models.CASCADE, db_column='question_id', related_name='quiz_questions_quizquestion_set')
     question_order = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

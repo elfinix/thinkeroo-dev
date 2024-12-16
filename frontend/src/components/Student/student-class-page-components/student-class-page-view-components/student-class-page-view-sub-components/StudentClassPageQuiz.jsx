@@ -6,9 +6,9 @@ import StudentWarnQuizModal from "../../../student-basic-components/student-moda
 
 import axios from "axios";
 import { API_ENDPOINT } from "/constants/constants";
+import { setQuizCount, getQuizCount } from "/src/global/globals";
 
 function StudentClassPageQuiz({ classItem }) {
-    console.log(classItem);
     const [filteredQuizData, setFilteredQuizData] = useState(initialQuizData);
     const [currentView, setCurrentView] = useState("quizList"); // Track current view
     const [selectedQuiz, setSelectedQuiz] = useState(null); // Track selected quiz
@@ -19,6 +19,7 @@ function StudentClassPageQuiz({ classItem }) {
 
     const handleQuizClick = (quiz) => {
         setSelectedQuiz(quiz);
+        setQuizCount(quiz.question_count);
         setShowWarningModal(true); // Open the warning modal
     };
 
@@ -56,7 +57,7 @@ function StudentClassPageQuiz({ classItem }) {
     };
 
     if (currentView === "takingQuiz" && selectedQuiz) {
-        return <StudentTakingQuiz quizData={selectedQuiz} onBack={handleBackToQuizList} classItem={classItem} />;
+        return <StudentTakingQuiz selectedQuiz={selectedQuiz} onBack={handleBackToQuizList} classItem={classItem} />;
     }
 
     return (

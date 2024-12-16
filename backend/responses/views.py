@@ -1,9 +1,9 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.response import Response as DRFResponse
 from rest_framework import status
-from .models import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response as DRFResponse
 from .serializers import ResponseSerializer
+from .models import Response
 
 @api_view(['GET', 'POST'])
 def response_list(request):
@@ -42,3 +42,13 @@ def response_detail(request, pk):
     if request.method == 'DELETE':  # Delete a specific response record
         response.delete()
         return DRFResponse(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def submit_response(request):
+    """Submit a response to a quiz question."""
+    serializer = ResponseSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return DRFResponse(serializer.data, status=status.HTTP_201_CREATED)
+    return DRFResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

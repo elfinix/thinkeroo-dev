@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from .models import QuizQuestion, Question, Quiz
-from .serializers import QuizQuestionReadSerializer, QuestionSerializer, QuizQuestionWriteSerializer
+from .serializers import QuizQuestionReadSerializer, QuizQuestionWriteSerializer
 from django.shortcuts import render
 
 
@@ -55,6 +55,7 @@ def user_quizzes(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
     
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def questions_by_quiz(request, quiz_id):
     """Retrieve all questions for a specific quiz."""
     quiz_questions = QuizQuestion.objects.filter(quiz_instance_id=quiz_id).select_related('question_instance')

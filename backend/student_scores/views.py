@@ -1,9 +1,11 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response as DRFResponse
 from rest_framework import status
 from .models import StudentScore
+from responses.models import Response
 from .serializers import StudentScoreSerializer
+from responses.serializers import ResponseSerializer
 from django.db import connection
 
 @api_view(['GET', 'POST'])
@@ -45,36 +47,27 @@ def student_score_detail(request, pk):
         return DRFResponse(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
-def student_scores_by_quiz(request, quiz_id):
-    """Retrieve student scores by quiz."""
-    scores = StudentScore.objects.filter(quiz_instance=quiz_id).select_related('student_instance')
+@permission_classes([IsAuthenticated])
+def student_quiz_result(request, quiz_id):
+    """
+    Retrieve the authenticated student's score and responses for a specific quiz.
+    """
+    user = request.user
     
-    # Query to get the total number of questions in the quiz
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT COUNT(q.id) AS total_questions
-            FROM question q
-            JOIN quiz z ON q.quiz_id = z.id
-            WHERE z.id = %s
-        """, [quiz_id])
-        total_questions = cursor.fetchone()[0]
-
-    # Query to get the number of students who took the quiz
-    number_of_respondents = scores.count()
-
-    data = [
-        {
-            'student_id': score.student_instance.id,
-            'first_name': score.student_instance.first_name,
-            'last_name': score.student_instance.last_name,
-            'student_name': (score.student_instance.first_name + ' ' + score.student_instance.last_name),
-            'score': score.total_score,
-            'time_started': score.time_started,
-            'time_finished': score.time_finished,
-            'time_taken': round((score.time_finished - score.time_started).total_seconds() / 360, 2),
-            'total_questions': total_questions,
-            'number_of_respondents': number_of_respondents
-        }
-        for score in scores
-    ]
+    # Retrieve StudentScore
+    try:
+        student_score = StudentScore.objects.get(student_id=user.id, quiz_id=quiz_id)
+    except StudentScore.DoesNotExist:
+        return DRFResponse({'error': 'Quiz result not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    # Retrieve Responses
+    responses = Response.objects.filter(student_id=user.id, quiz_question__quiz_id=quiz_id).select_related('quiz_question__question')
+    response_serializer = ResponseSerializer(responses, many=True)
+    
+    data = {
+        'total_score': student_score.total_score,
+        'date_taken': student_score.date_taken,
+        'responses': response_serializer.data
+    }
+    
     return DRFResponse(data, status=status.HTTP_200_OK)
