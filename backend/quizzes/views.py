@@ -8,7 +8,6 @@ from .serializers import QuizSerializer
 from quiz_questions.models import QuizQuestion  # Import from the correct app
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
 def quiz_list(request):
     if request.method == 'GET':
         teacher_id = request.user.id

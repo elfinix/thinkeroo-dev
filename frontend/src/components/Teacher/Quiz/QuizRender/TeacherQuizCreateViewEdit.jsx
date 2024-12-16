@@ -157,6 +157,23 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
 
         const totalMinutes = parseInt(hours || "0") * 60 + parseInt(minutes || "0") + parseInt(seconds || "0") / 60;
 
+        let userId = null;
+        if (!selectedQuiz) {
+            try {
+                const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                const response = await axios.get(`${API_ENDPOINT}/api/users/get_user_id/`, {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                });
+                userId = response.data.user_id;
+            } catch (error) {
+                console.error("Failed to retrieve user ID:", error);
+                alert("Failed to retrieve user ID. Please try again.");
+                return;
+            }
+        }
+
         const quizData = {
             title,
             description,
@@ -164,7 +181,7 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
             schedule,
             class_instance: classId,
             shows_results: showScore,
-            teacher_id: selectedQuiz ? selectedQuiz.teacher_id : null,
+            teacher_id: selectedQuiz ? selectedQuiz.teacher_id : userId,
         };
 
         console.log("Quiz Data:", JSON.stringify(quizData, null, 2)); // Log the data being sent
@@ -194,7 +211,7 @@ const TeacherQuizCreateViewEdit = ({ selectedQuiz, unselectQuiz }) => {
                 const questionData = {
                     quiz_instance: savedQuiz.id,
                     content: question.content,
-                    type: question.type,
+                    type: question.type || "TF",
                     choice1: question.type === "TF" ? "True" : question.choice1 || "",
                     choice2: question.type === "TF" ? "False" : question.choice2 || "",
                     choice3: question.type === "TF" ? "" : question.choice3 || "",
