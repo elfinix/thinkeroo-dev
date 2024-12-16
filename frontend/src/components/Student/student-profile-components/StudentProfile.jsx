@@ -7,17 +7,19 @@ import BackIcon from '../student-basic-components/student-icons-components/BackI
 
 import { initialStudentData } from '../student-basic-components/MockStudentData';
 
-function StudentProfile() {
+function StudentProfile({ goBack }) {  // Assume goBack is passed from the parent component
   const [activeTab, setActiveTab] = useState('personalInfo');
 
-  // Retrieve the first student from the initial data, kayo na bahala mag adjust based on api :>
   const student = initialStudentData[0];
 
   return (
-    <div className="bg-primary-1 text-text-1 min-h-screen flex items-center justify-center font-lexend">  {/* Adjust margins here for header and menu */}
+    <div className="fixed inset-0 bg-primary-1 text-text-1 z-50 flex items-center justify-center font-lexend"
+      style={{
+        position: 'absolute',
+        zIndex: 1000}}>
       <div className="border border-primary-3 rounded-lg shadow-lg p-8 flex flex-col md:flex-row w-full max-w-4xl">
         <div className="md:w-1/3 flex flex-col items-center border-r border-gray-700 pr-8">
-          <a className="self-start text-text-1 mb-4 flex items-center" href="#">
+          <a className="self-start text-text-1 mb-4 flex items-center cursor-pointer" onClick={goBack}>
             <BackIcon size={24} color="#F5F5F5" className="mr-2" /> 
             Go back
           </a>
@@ -31,7 +33,6 @@ function StudentProfile() {
           <h2 className="text-base font-semibold">{student.personalDetail.firstName} {student.personalDetail.lastName}</h2>
           <p className="text-text-2 text-sm">{student.personalDetail.role}</p>
           <div className="mt-8 w-full">
-            {/* Tabs */}
             <a className={`flex items-center mb-4 text-base ${activeTab === 'personalInfo' ? 'text-secondary-1' : 'text-text-1'}`}
               onClick={() => setActiveTab('personalInfo')}
               >
@@ -47,7 +48,6 @@ function StudentProfile() {
           </div>
         </div>
 
-        {/*Content */}
         <div className="md:w-2/3 mt-8 md:mt-0 md:pl-8">
           {activeTab === 'personalInfo' && 
             <StudentPersonalInfo student={student} />

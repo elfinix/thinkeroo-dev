@@ -9,6 +9,9 @@ function StudentAccPass({ student }) {
   const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState ('');
+  const [modalDescription, setModalDescription] = useState('');
+  const [modalBttn, setModalBttn] = useState('');
 
   const togglePasswordVisibility = (field) => {
     if (field === 'current') {
@@ -58,14 +61,18 @@ function StudentAccPass({ student }) {
   const handleChangePassword = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // add more logic here if needed
+      setModalTitle('Change Password?');
+      setModalDescription('Are you sure you want to change your password?');
+      setModalBttn('Change');
       setIsModalOpen(true);
     }
   };
-
+  
   const handleDeleteAccount = () => {
-    console.log('Account deletion initiated');
-    // Implement account deletion logic here
+    setModalTitle('Delete Account?');
+    setModalDescription('Deleting your account will remove all your data permanently. Are you sure you want to proceed?');
+    setModalBttn('Delete');
+    setIsModalOpen(true);
   };
 
   const handleConfirmSave = () => {
@@ -206,9 +213,9 @@ function StudentAccPass({ student }) {
         isOpen={isModalOpen}
         onClose={handleCancelSave}
         onSave={handleConfirmSave}
-        modalTitle="Change Password?"
-        modalDesc="Are you sure you want to change your password? "
-        bttnName="Accept"
+        modalTitle={modalTitle}
+        modalDesc={modalDescription}
+        bttnName={modalBttn}
       />
 
     </div>

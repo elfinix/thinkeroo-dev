@@ -50,7 +50,7 @@ const StudentQuizPage = () => {
         <div className="sticky top-0 z-50 mb-6"> 
           <StudentSearchField onChange={handleSearchChange} />
         </div>
-        <div className="flex bg-primary-1 border-b-2 py-4 border-primary-3 items-center font-lexend sticky top-24 z-50">
+        <div className="flex bg-primary-1 border-b-2 py-4 border-primary-3 items-center font-lexend sticky top-24 z-50 -mt-24">
           <button
             onClick={toggleModal}  
             className="border-2 border-text-1 text-text-1 px-4 py-2 rounded-xl flex items-center hover:opacity-75"
