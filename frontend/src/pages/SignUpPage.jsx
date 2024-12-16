@@ -66,11 +66,18 @@ const SignUpPage = () => {
         }
     };
 
+    const handleGoBack = () => {
+        navigate("/");
+    };
+
     return (
         <div className="flex h-screen bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
             <div className="flex flex-row bg-primary-1 p-4 rounded-xl my-auto mx-auto w-[75vw] sm:w-[71vw] md:w-[75vw] h-[80vh] sm:h-[80vh] md:h-[90vh]">
                 <div className="relative w-full">
-                    <button className="flex items-center absolute top-[10%] sm:top-[42px] left-[5%] sm:left-[30px] z-10 justify-center gap-2 w-[35%] sm:w-[25%] md:w-[25%]] p-2 ml-[5%] sm:ml-[20px] border border-white text-white rounded-full">
+                    <button
+                        onClick={handleGoBack}
+                        className="flex items-center absolute top-[10%] sm:top-[42px] left-[5%] sm:left-[30px] z-10 justify-center gap-2 w-[35%] sm:w-[25%] md:w-[25%]] p-2 ml-[5%] sm:ml-[20px] border border-white text-white rounded-full"
+                    >
                         <span>
                             <FaArrowLeft size={20} />
                         </span>

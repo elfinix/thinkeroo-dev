@@ -16,7 +16,12 @@ const TeacherClass = () => {
     useEffect(() => {
         const fetchClasses = async () => {
             try {
-                const response = await axios.get(`${API_ENDPOINT}/api/classes/`);
+                const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                const response = await axios.get(`${API_ENDPOINT}/api/user-class/`, {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                });
                 setClassList(response.data);
             } catch (error) {
                 console.error("Failed to fetch classes:", error);
@@ -31,7 +36,12 @@ const TeacherClass = () => {
             try {
                 const counts = {};
                 for (const classItem of classList) {
-                    const response = await axios.get(`${API_ENDPOINT}/api/user-class/total_students/${classItem.id}/`);
+                    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                    const response = await axios.get(`${API_ENDPOINT}/api/user-class/total_students/${classItem.id}/`, {
+                        headers: {
+                            Authorization: `Token ${token}`,
+                        },
+                    });
                     counts[classItem.id] = response.data.total_students;
                 }
                 setStudentCounts(counts);

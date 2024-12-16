@@ -1,11 +1,11 @@
-from .models import Class
-from django.shortcuts import render
-from rest_framework.decorators import api_view
+from user_class.serializers import UserClassSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import UserClass
-from .serializers import UserClassSerializer
-from django.db.models import Prefetch
+from classes.models import Class
+from classes.serializers import ClassSerializer
 
 @api_view(['POST'])
 def add_user_to_class(request):
@@ -17,10 +17,13 @@ def add_user_to_class(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def list_user_classes(request):
-    """List all user-class relationships."""
-    user_classes = UserClass.objects.all()
-    serializer = UserClassSerializer(user_classes, many=True)
+    """List all classes that belong to the authenticated user."""
+    user = request.user
+    user_classes = UserClass.objects.filter(user=user, status='active').select_related('class_instance')
+    classes = [uc.class_instance for uc in user_classes]
+    serializer = ClassSerializer(classes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['DELETE'])
